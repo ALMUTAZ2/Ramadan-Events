@@ -398,33 +398,34 @@
                     correct: 2
                 }
             ],
-            20: [ // اليوم 20 من رمضان
-                {
-                    question: "ما هو الكتاب المقدس في الديانة المسيحية؟",
-                    options: ["القرآن", "الإنجيل", "التوراة", "الزبور"],
-                    correct: 1
-                },
-                {
-                    question: "من هو الحواري الذي أنكر ثلاث مرات قبل فجر التوبة؟",
-                    options: ["بطرس", "يوحنا", "يعقوب", "متّى"],
-                    correct: 0
-                },
-                {
-                    question: "من هو الإمام الذي يُعتبر ركيزة المذهب الشيعي؟",
-                    options: ["الإمام علي بن أبي طالب", "الإمام الحسن بن علي", "الإمام الحسين بن علي", "الإمام جعفر الصادق"],
-                    correct: 0
-                },
-                {
-                    question: "ما هي أول سورة نزلت على النبي محمد صلى الله عليه وسلم؟",
-                    options: ["سورة البقرة", "سورة العلق", "سورة الإخلاص", "سورة النصر"],
-                    correct: 1
-                },
-                {
-                    question: "ما هو اسم النبي محمد صلى الله عليه وسلم قبل البعثة؟",
-                    options: ["أبو القاسم", "عبد الله", "عبد الرحمن", "أبو هريرة"],
-                    correct: 0
-                }
-            ],
+            20: [ // اليوم 20 من رمضان 
+    {
+        question: " ما أول هدية قُدمت للنبي صلى الله عليه وسلم في دار أبي أيوب؟ ",
+        options: ["قصعة فيها خبز مثرود بلبن وسمن", "قصعة من العسل", "قصعة من الحساء", "قطعة من اللحم المشوي"],
+        correct: 0
+    },
+    {
+        question: "من الذي أراد هدم الكعبة في عام الفيل؟",
+        options: ["النمرود", "أبو جهل", "أبرهة بن الصباح", "أبرهة الحبشي"],
+        correct: 3
+    },
+    {
+        question: "من الصحابيّ الجليل الذي نام في فراش النبيّ صلى الله عليه وسلم في ليلة الهجرة؟",
+        options: ["عمر بن الخطاب", "علي بن أبي طالب", "أبو بكر الصديق", "عبد الله بن مسعود"],
+        correct: 1
+    },
+    {
+        question: "من الذي كان يأتي النبي صلى الله عليه وسلم وأبو بكر الصديق بالأخبار وهما في غار ثور؟",
+        options: ["علي بن أبي طالب", "عبد الرحمن بن عوف", "عبد الله بن أبي بكر", "زيد بن حارثة"],
+        correct: 2
+    },
+    {
+        question: "من هم أصحاب الأعراف؟",
+        options: ["قوم استوت حسناتهم وسيئاتهم", "الملائكة المراقبون للجنة والنار", "أنبياء يشفعون للناس", "كفار لم تصلهم الرسالة"],
+        correct: 0
+    }
+],
+             
             21: [ // اليوم 21 من رمضان
                 {
                     question: "من هو النبي الذي بُني له فلكٌ لإنقاذ البشرية؟",
@@ -474,7 +475,7 @@
                     correct: 0
                 },
                 {
-                    question: "أي مدينة قديمة تقع في بلاد الرافدين وتشتهر بتاريخها؟",
+                                        question: "أي مدينة قديمة تقع في بلاد الرافدين وتشتهر بتاريخها؟",
                     options: ["بغداد", "بابل", "الكوفة", "دمشق"],
                     correct: 1
                 }
@@ -687,7 +688,9 @@
             questionStartTime: null,
             questionTimes: [],
             totalTime: 0,
-            isAnswered: false
+            isAnswered: false,
+            // إضافة مصفوفة لتخزين الإجابات الصحيحة بعد الخلط
+            correctAnswers: []
         };
 
         // العناصر
@@ -711,22 +714,28 @@
         };
         
         // ===== الجزء الأول: متغيرات التحكم وإعدادات المسابقة =====
-
-
-
         
         // وضع المسابقة: "auto" للتوقيت التلقائي، "always" لتكون متاحة دائمًا، "never" لتكون غير متاحة دائمًا
         const QUIZ_MODE = "auto"; // للاختبار، يمكن تغييره إلى "auto" لاحقاً
 
+
+
+
+
+
+
+        
         // أوقات المسابقة (بالساعات والدقائق - نظام 24 ساعة)
-        const QUIZ_START_HOUR = 19;    // 7 مساءً
+        const QUIZ_START_HOUR = 2;    // 7 مساءً
         const QUIZ_START_MINUTE = 00;  // 00 دقيقة
-        const QUIZ_END_HOUR = 20;      // 8 مساءً
+        const QUIZ_END_HOUR = 3;      // 8 مساءً
         const QUIZ_END_MINUTE = 00;    // 00 دقيقة
-
-
-
-
+        
+   
+        
+        
+        
+        
         
         // ===== الجزء الثاني: الدوال والمنطق البرمجي =====
 
@@ -752,6 +761,59 @@
                 // إرجاع معرف عشوائي في حالة الخطأ
                 return 'device_' + Date.now();
             }
+        }
+
+        /**
+         * دالة لخلط المصفوفة (خوارزمية Fisher-Yates)
+         * @param {Array} array - المصفوفة المراد خلطها
+         * @returns {Array} - المصفوفة بعد الخلط
+         */
+        function shuffleArray(array) {
+            const newArray = [...array]; // نسخ المصفوفة لتجنب تعديل الأصل
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        /**
+         * دالة لخلط الأسئلة والخيارات مع الاحتفاظ بالإجابات الصحيحة
+         * @param {Array} questions - مصفوفة الأسئلة الأصلية
+         * @returns {Object} - كائن يحتوي على الأسئلة المخلوطة والإجابات الصحيحة
+         */
+        function shuffleQuestions(questions) {
+            // خلط ترتيب الأسئلة
+            const shuffledQuestions = shuffleArray([...questions]);
+            const correctAnswers = [];
+            
+            // لكل سؤال، نخلط الخيارات ونحتفظ بالإجابة الصحيحة
+            const processedQuestions = shuffledQuestions.map(question => {
+                // نحضر الخيارات والإجابة الصحيحة
+                const options = [...question.options];
+                const correctOption = options[question.correct];
+                
+                // نخلط الخيارات
+                const shuffledOptions = shuffleArray(options);
+                
+                // نحدد موقع الإجابة الصحيحة بعد الخلط
+                const newCorrectIndex = shuffledOptions.indexOf(correctOption);
+                
+                // نخزن الإجابة الصحيحة الجديدة
+                correctAnswers.push(newCorrectIndex);
+                
+                // نعيد السؤال بالخيارات المخلوطة
+                return {
+                    question: question.question,
+                    options: shuffledOptions,
+                    correct: newCorrectIndex
+                };
+            });
+            
+            return {
+                questions: processedQuestions,
+                correctAnswers: correctAnswers
+            };
         }
 
         // دالة التحقق من وقت المسابقة
@@ -940,7 +1002,7 @@
                 // إذا كانت هناك وثيقة واحدة على الأقل، فهذا يعني أن المستخدم شارك بالفعل
                 return !participationQuery.empty;
             } catch (error) {
-                console.error('خطأ في التحقق من المشاركة في Firestore:', error);
+                                console.error('خطأ في التحقق من المشاركة في Firestore:', error);
                 // في حالة حدوث خطأ، نعتمد على التخزين المحلي
                 return checkLocalParticipation();
             }
@@ -1005,7 +1067,7 @@
                 }
 
                 const message = countdownMessages[currentIndex];
-                                document.getElementById('countdown-number').textContent = message.number;
+                document.getElementById('countdown-number').textContent = message.number;
                 document.getElementById('countdown-text').textContent = message.text;
 
                 currentIndex++;
@@ -1288,8 +1350,15 @@
                     return;
                 }
                 
-                // تحديث بنك الأسئلة باستخدام أسئلة اليوم المحدد
-                gameState.questions = [...ramadanQuestions[questionDay]];
+                // تحديث بنك الأسئلة باستخدام أسئلة اليوم المحدد والقيام بخلط الأسئلة والخيارات
+                const originalQuestions = [...ramadanQuestions[questionDay]];
+                const shuffledData = shuffleQuestions(originalQuestions);
+                
+                // تحديث حالة اللعبة بالأسئلة المخلوطة
+                gameState.questions = shuffledData.questions;
+                gameState.correctAnswers = shuffledData.correctAnswers;
+                
+                console.log('تم خلط الأسئلة والخيارات بنجاح');
                 
                 // إخفاء شاشة التحميل
                 elements.loadingScreen.classList.add('hidden');
