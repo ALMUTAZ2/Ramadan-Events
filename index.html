@@ -1234,37 +1234,18 @@ const elements = {
         }
 
         // عرض النتائج
-        
 
-        // تهيئة المسابقة
-        async function initializeQuiz() {
-            try {
-                // تهيئة معرف الجهاز
-                gameState.deviceId = generateDeviceId();
-                console.log('معرف الجهاز:', gameState.deviceId);
-                
-                updateDateTime();
-                
-                // إظهار شاشة التحميل
-                elements.loadingScreen.classList.remove('hidden');
-                
-                // التحقق من إعادة ضبط المشاركة اليومية
-                checkAndResetParticipation();
-                
-                // التحقق من وقت المسابقة
-                const quizTimeStatus = checkQuizTimeStatus();
-                
-                if (quizTimeStatus.isAvailable) {
-                    // المسابقة متاحة حالياً
-                    
-            async function showResults() {
+
+
+
+        // عرض النتائج
+async function showResults() {
     try {
         // إخفاء شاشة الأسئلة
         elements.quizScreen.classList.add('hidden');
         
         // إظهار شاشة الشكر
-        const thankYouScreen = document.getElementById('thank-you-screen');
-        thankYouScreen.classList.remove('hidden');
+        elements.thankYouScreen.classList.remove('hidden');
         
         // تحضير بيانات النتائج
         const playerData = {
@@ -1283,7 +1264,7 @@ const elements = {
         // إضافة مستمع حدث لزر عرض النتائج
         document.getElementById('show-results-button').addEventListener('click', () => {
             // إخفاء شاشة الشكر
-            thankYouScreen.classList.add('hidden');
+            elements.thankYouScreen.classList.add('hidden');
             
             // إظهار شاشة النتائج
             elements.resultsScreen.classList.remove('hidden');
@@ -1295,6 +1276,7 @@ const elements = {
                 الوقت الإجمالي: ${gameState.totalTime.toFixed(2)} ثانية
             `;
 
+            // عرض مراجعة الإجابات
             const answersHtml = gameState.answers.map((answer, index) => `
                 <div class="bg-white/5 p-4 rounded-xl">
                     <div class="font-bold mb-2">السؤال ${index + 1}</div>
@@ -1320,7 +1302,31 @@ const elements = {
         alert('حدث خطأ في حفظ النتيجة. يرجى المحاولة مرة أخرى.');
     }
 }
-        // التحقق من المشاركة السابقة في Firestore
+
+        
+
+        // تهيئة المسابقة
+        async function initializeQuiz() {
+            try {
+                // تهيئة معرف الجهاز
+                gameState.deviceId = generateDeviceId();
+                console.log('معرف الجهاز:', gameState.deviceId);
+                
+                updateDateTime();
+                
+                // إظهار شاشة التحميل
+                elements.loadingScreen.classList.remove('hidden');
+                
+                // التحقق من إعادة ضبط المشاركة اليومية
+                checkAndResetParticipation();
+                
+                // التحقق من وقت المسابقة
+                const quizTimeStatus = checkQuizTimeStatus();
+                
+                if (quizTimeStatus.isAvailable) {
+                    // المسابقة متاحة حالياً
+                    
+                    // التحقق من المشاركة السابقة في Firestore
                     const hasParticipated = await checkFirestoreParticipation(gameState.deviceId);
                     
                     // إخفاء شاشة التحميل
