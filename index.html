@@ -208,6 +208,35 @@
         </div>
     </div>
 
+<!-- شاشة الشكر -->
+<div id="thank-you-screen" class="min-h-screen text-white p-6 hidden">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white/10 backdrop-blur-lg border-2 border-green-400/20 rounded-2xl p-8 text-center">
+            <div class="relative h-32 mb-6">
+                <div class="floating-moon">
+                    <i data-lucide="moon" class="w-20 h-20 mx-auto text-yellow-400"></i>
+                </div>
+                <div class="absolute bottom-0 w-full">
+                    <i data-lucide="star" class="star w-4 h-4" style="left: calc(50% - 20px);"></i>
+                    <i data-lucide="star" class="star w-4 h-4" style="left: 50%;"></i>
+                    <i data-lucide="star" class="star w-4 h-4" style="left: calc(50% + 20px);"></i>
+                </div>
+            </div>
+            <h3 class="text-2xl font-bold text-yellow-400 mb-6">شكراً لمشاركتك معنا!</h3>
+            <div class="prose prose-invert max-w-none space-y-4">
+                <p class="text-gray-300">السلام عليكم ورحمة الله وبركاته،</p>
+                <p class="text-gray-300">مع ختام هذا الشهر الفضيل، أتقدم بأسمى آيات الشكر والتقدير لكل من شارك وتفاعل معنا خلال شهر رمضان المبارك. كان حضوركم وتفاعلكم مصدر إلهام وسعادة، وأضفتم جميعًا لمسة مميزة جعلت هذه الأيام أكثر بهجة وروحانية.</p>
+                <p class="text-gray-300">أسأل الله أن يتقبل منا ومنكم صالح الأعمال، وأن يعيد علينا وعليكم رمضان أعوامًا عديدة ونحن في صحة وعافية. كل عام وأنتم بخير، وعيدكم مبارك مقدمًا.</p>
+                <p class="text-green-400 mt-6">أخوكم/ المعتز أبو طالب</p>
+            </div>
+            <button id="show-results-button" class="mt-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-xl text-lg">
+                عرض النتائج
+            </button>
+        </div>
+    </div>
+</div>
+
+    
     <!-- شاشة النتائج -->
     <div id="results-screen" class="min-h-screen text-white p-6 hidden">
         <div class="max-w-2xl mx-auto">
@@ -1203,53 +1232,7 @@
         }
 
         // عرض النتائج
-        async function showResults() {
-            try {
-                elements.quizScreen.classList.add('hidden');
-                elements.resultsScreen.classList.remove('hidden');
-
-                const playerData = {
-                    playerName: gameState.playerName,
-                    playerEmail: gameState.playerEmail || '',
-                    deviceId: gameState.deviceId,
-                    score: gameState.score,
-                    totalTime: gameState.totalTime,
-                    participationDate: getTodayFormatted(),
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                await db.collection('scores').add(playerData);
-
-                document.getElementById('final-name').textContent = `الاسم: ${gameState.playerName}`;
-                document.getElementById('final-score').innerHTML = `
-                    النقاط: ${gameState.score}<br>
-                    الوقت الإجمالي: ${gameState.totalTime.toFixed(2)} ثانية
-                `;
-
-                const answersHtml = gameState.answers.map((answer, index) => `
-                    <div class="bg-white/5 p-4 rounded-xl">
-                        <div class="font-bold mb-2">السؤال ${index + 1}</div>
-                        <div class="text-sm opacity-90 mb-2">${answer.question}</div>
-                        <div class="text-sm ${answer.isCorrect ? 'text-green-400' : 'text-red-400'}">
-                            إجابتك: ${answer.selectedAnswer}
-                            ${!answer.isCorrect ? `<br>الإجابة الصحيحة: ${answer.correctAnswer}` : ''}
-                        </div>
-                        <div class="text-sm mt-2">
-                            الوقت: ${answer.time.toFixed(2)} ثانية
-                            <br>
-                            النقاط: ${answer.points}
-                        </div>
-                    </div>
-                `).join('');
-
-                document.getElementById('answers-review').innerHTML = answersHtml;
-                lucide.createIcons();
-
-            } catch (error) {
-                console.error('Error saving results:', error);
-                alert('حدث خطأ في حفظ النتيجة. يرجى المحاولة مرة أخرى.');
-            }
-        }
+        
 
         // تهيئة المسابقة
         async function initializeQuiz() {
@@ -1272,7 +1255,70 @@
                 if (quizTimeStatus.isAvailable) {
                     // المسابقة متاحة حالياً
                     
-                    // التحقق من المشاركة السابقة في Firestore
+            async function showResults() {
+    try {
+        // إخفاء شاشة الأسئلة
+        elements.quizScreen.classList.add('hidden');
+        
+        // إظهار شاشة الشكر
+        const thankYouScreen = document.getElementById('thank-you-screen');
+        thankYouScreen.classList.remove('hidden');
+        
+        // تحضير بيانات النتائج
+        const playerData = {
+            playerName: gameState.playerName,
+            playerEmail: gameState.playerEmail || '',
+            deviceId: gameState.deviceId,
+            score: gameState.score,
+            totalTime: gameState.totalTime,
+            participationDate: getTodayFormatted(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // حفظ النتائج في قاعدة البيانات
+        await db.collection('scores').add(playerData);
+
+        // إضافة مستمع حدث لزر عرض النتائج
+        document.getElementById('show-results-button').addEventListener('click', () => {
+            // إخفاء شاشة الشكر
+            thankYouScreen.classList.add('hidden');
+            
+            // إظهار شاشة النتائج
+            elements.resultsScreen.classList.remove('hidden');
+            
+            // تحديث محتوى النتائج
+            document.getElementById('final-name').textContent = `الاسم: ${gameState.playerName}`;
+            document.getElementById('final-score').innerHTML = `
+                النقاط: ${gameState.score}<br>
+                الوقت الإجمالي: ${gameState.totalTime.toFixed(2)} ثانية
+            `;
+
+            const answersHtml = gameState.answers.map((answer, index) => `
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <div class="font-bold mb-2">السؤال ${index + 1}</div>
+                    <div class="text-sm opacity-90 mb-2">${answer.question}</div>
+                    <div class="text-sm ${answer.isCorrect ? 'text-green-400' : 'text-red-400'}">
+                        إجابتك: ${answer.selectedAnswer}
+                        ${!answer.isCorrect ? `<br>الإجابة الصحيحة: ${answer.correctAnswer}` : ''}
+                    </div>
+                    <div class="text-sm mt-2">
+                        الوقت: ${answer.time.toFixed(2)} ثانية
+                        <br>
+                        النقاط: ${answer.points}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('answers-review').innerHTML = answersHtml;
+            lucide.createIcons();
+        });
+
+    } catch (error) {
+        console.error('Error saving results:', error);
+        alert('حدث خطأ في حفظ النتيجة. يرجى المحاولة مرة أخرى.');
+    }
+}
+        // التحقق من المشاركة السابقة في Firestore
                     const hasParticipated = await checkFirestoreParticipation(gameState.deviceId);
                     
                     // إخفاء شاشة التحميل
