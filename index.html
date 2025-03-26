@@ -1303,10 +1303,10 @@ async function showResults() {
                 // تحديد اليوم المناسب من بنك الأسئلة
                 let questionDay = currentDay;
                 
-                if (questionDay > 25) {
-                    questionDay = 25; // آخر يوم في بنك الأسئلة
-                } else if (questionDay < 15) {
-                    questionDay = 15; // أول يوم في بنك الأسئلة
+                if (questionDay > 1) {
+                    questionDay = 1; // آخر يوم في بنك الأسئلة
+                } else if (questionDay < 1) {
+                    questionDay = 1; // أول يوم في بنك الأسئلة
                 }
                 
                 console.log(`اليوم الحالي: ${currentDay}، يوم الأسئلة المختار: ${questionDay}`);
@@ -1315,7 +1315,7 @@ async function showResults() {
                 if (!ramadanQuestions[questionDay]) {
                     console.error(`لا توجد أسئلة لليوم ${questionDay}`);
                     elements.loadingScreen.classList.add('hidden');
-                    alert('عذراً، لا توجد أسئلة متاحة لهذا اليوم');
+                    alert('عذراً، لا توجد أسئلة متاحة لهذا اليوم كل عام وانتم بخير ');
                     return;
                 }
                 
