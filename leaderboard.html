@@ -16,19 +16,11 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .animate-slide-in {
-            animation: slideIn 0.5s ease-out forwards;
-        }
+        .animate-slide-in { animation: slideIn 0.5s ease-out forwards; }
 
         .trophy-1 { color: #FFD700; }
         .trophy-2 { color: #C0C0C0; }
@@ -145,7 +137,7 @@
 
         let db;
         try {
-            firebase.initializeApp(firebaseConfig);
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
         } catch (error) {
             console.error('Error initializing Firebase:', error);
@@ -162,54 +154,79 @@
             document.getElementById('current-date').textContent = date;
         }
 
+        // ✅ نفس تنسيق index.html (DD-MM-YYYY)
+        function getTodayFormatted() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
         // جلب النتائج
         async function fetchResults() {
             try {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                const todayKey = getTodayFormatted();
 
+                // ✅ استعلام ثابت على participationDate + ترتيب بالنقاط ثم الوقت
+                // ملاحظة: قد يطلب Firestore إنشاء Index (مرة واحدة فقط)
                 const snapshot = await db.collection('scores')
-                    .where('timestamp', '>=', today)
-                    .orderBy('timestamp', 'desc')
+                    .where('participationDate', '==', todayKey)
+                    .orderBy('score', 'desc')
+                    .orderBy('totalTime', 'asc')
                     .get();
 
                 const results = [];
                 snapshot.forEach(doc => {
+                    const data = doc.data() || {};
                     results.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...data
                     });
                 });
 
-                // ترتيب النتائج حسب النقاط والوقت
-                results.sort((a, b) => {
-                    if (b.score !== a.score) return b.score - a.score;
-                    return a.totalTime - b.totalTime;
-                });
+                // لو ما في نتائج
+                if (results.length === 0) {
+                    document.getElementById('first-place').innerHTML = `<div class="opacity-80">لا توجد نتائج لليوم بعد</div>`;
+                    document.getElementById('second-place').innerHTML = `<div class="opacity-80">—</div>`;
+                    document.getElementById('third-place').innerHTML = `<div class="opacity-80">—</div>`;
+                    document.getElementById('results-table').innerHTML = `
+                        <tr class="border-b border-white/10">
+                            <td class="p-3" colspan="4">لا توجد نتائج لليوم حتى الآن.</td>
+                        </tr>
+                    `;
+                    document.getElementById('results-date').textContent =
+                        `نتائج ${new Date().toLocaleDateString('ar-SA')}`;
+                    return;
+                }
 
                 // عرض المراكز الثلاثة الأولى
                 if (results.length > 0) {
                     document.getElementById('first-place').innerHTML = `
-                        <div class="font-bold">${results[0].playerName}</div>
-                        <div class="text-yellow-400">${results[0].score} نقطة</div>
-                        <div class="text-sm opacity-75">${results[0].totalTime.toFixed(2)} ثانية</div>
+                        <div class="font-bold">${results[0].playerName || ''}</div>
+                        <div class="text-yellow-400">${results[0].score ?? 0} نقطة</div>
+                        <div class="text-sm opacity-75">${Number(results[0].totalTime || 0).toFixed(2)} ثانية</div>
                     `;
                 }
 
                 if (results.length > 1) {
                     document.getElementById('second-place').innerHTML = `
-                        <div class="font-bold">${results[1].playerName}</div>
-                        <div class="text-silver">${results[1].score} نقطة</div>
-                        <div class="text-sm opacity-75">${results[1].totalTime.toFixed(2)} ثانية</div>
+                        <div class="font-bold">${results[1].playerName || ''}</div>
+                        <div class="text-silver">${results[1].score ?? 0} نقطة</div>
+                        <div class="text-sm opacity-75">${Number(results[1].totalTime || 0).toFixed(2)} ثانية</div>
                     `;
+                } else {
+                    document.getElementById('second-place').innerHTML = `<div class="opacity-80">—</div>`;
                 }
 
                 if (results.length > 2) {
                     document.getElementById('third-place').innerHTML = `
-                        <div class="font-bold">${results[2].playerName}</div>
-                        <div class="text-bronze">${results[2].score} نقطة</div>
-                        <div class="text-sm opacity-75">${results[2].totalTime.toFixed(2)} ثانية</div>
+                        <div class="font-bold">${results[2].playerName || ''}</div>
+                        <div class="text-bronze">${results[2].score ?? 0} نقطة</div>
+                        <div class="text-sm opacity-75">${Number(results[2].totalTime || 0).toFixed(2)} ثانية</div>
                     `;
+                } else {
+                    document.getElementById('third-place').innerHTML = `<div class="opacity-80">—</div>`;
                 }
 
                 // عرض جميع النتائج في الجدول
@@ -217,18 +234,20 @@
                 tableBody.innerHTML = results.map((result, index) => `
                     <tr class="border-b border-white/10 animate-slide-in" style="animation-delay: ${index * 0.1}s">
                         <td class="p-3">${index + 1}</td>
-                        <td class="p-3">${result.playerName}</td>
-                        <td class="p-3">${result.score}</td>
-                        <td class="p-3">${result.totalTime.toFixed(2)} ثانية</td>
+                        <td class="p-3">${result.playerName || ''}</td>
+                        <td class="p-3">${result.score ?? 0}</td>
+                        <td class="p-3">${Number(result.totalTime || 0).toFixed(2)} ثانية</td>
                     </tr>
                 `).join('');
 
                 // تحديث تاريخ النتائج
-                document.getElementById('results-date').textContent = 
+                document.getElementById('results-date').textContent =
                     `نتائج ${new Date().toLocaleDateString('ar-SA')}`;
 
             } catch (error) {
                 console.error('Error fetching results:', error);
+
+                // لو المشكلة Index required راح تظهر في console برابط الإنشاء
                 alert('حدث خطأ في جلب النتائج. يرجى تحديث الصفحة.');
             }
         }
@@ -242,8 +261,8 @@
             const hour = now.getHours();
             const minutes = now.getMinutes();
 
-            // تعديل الشرط ليظهر النتائج بعد الساعة 18:45 (6:45 مساءً)
-            if (hour > 20 || (hour === 20 && minutes >= 00)) {
+            // اظهار النتائج بعد 20:00
+            if (hour > 20 || (hour === 20 && minutes >= 0)) {
                 document.getElementById('waiting-screen').classList.add('hidden');
                 document.getElementById('results-screen').classList.remove('hidden');
                 fetchResults();
