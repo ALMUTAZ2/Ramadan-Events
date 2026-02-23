@@ -1295,29 +1295,30 @@ async function showResults() {
                 };
                 
                 await recordFirestoreParticipation(participationData);
-                
-                // تحديد اليوم الحالي من الشهر
-                const today = new Date();
-                const currentDay = today.getDate(); // يوم الشهر الحالي (1-31)
-                
-                // تحديد اليوم المناسب من بنك الأسئلة
-                let questionDay = currentDay;
-                
-                if (questionDay > 1) {
-                    questionDay = 1; // آخر يوم في بنك الأسئلة
-                } else if (questionDay < 1) {
-                    questionDay = 1; // أول يوم في بنك الأسئلة
-                }
-                
-                console.log(`اليوم الحالي: ${currentDay}، يوم الأسئلة المختار: ${questionDay}`);
-                
-                // التحقق من وجود أسئلة لليوم المحدد
-                if (!ramadanQuestions[questionDay]) {
-                    console.error(`لا توجد أسئلة لليوم ${questionDay}`);
-                    elements.loadingScreen.classList.add('hidden');
-                    alert('عذراً، لا توجد أسئلة متاحة لهذا اليوم كل عام وانتم بخير ');
-                    return;
-                }
+                // تحديد اليوم الحالي
+const today = new Date();
+const ramadanStartDate = new Date(2026, 1, 23); // 23 فبراير 2026 (6 رمضان)
+const ramadanEndDate = new Date(2026, 2, 9); // 9 مارس 2026 (20 رمضان)
+
+let questionDay;
+
+if (today >= ramadanStartDate && today <= ramadanEndDate) {
+    // حساب الفرق بالأيام بين اليوم الحالي وتاريخ بدء رمضان
+    const daysDifference = Math.floor((today - ramadanStartDate) / (1000 * 60 * 60 * 24));
+    questionDay = daysDifference + 6; // اليوم من رمضان يبدأ من 6
+} else {
+    console.error("اليوم خارج نطاق المسابقة.");
+    alert('عذراً، لا توجد أسئلة متاحة لهذا اليوم.');
+    return; // إنهاء الدالة إذا كان اليوم خارج النطاق
+}
+
+// التحقق من وجود أسئلة لليوم المحدد
+if (!ramadanQuestions[questionDay]) {
+    console.error(`لا توجد أسئلة لليوم ${questionDay}`);
+    alert('عذراً، لا توجد أسئلة متاحة لهذا اليوم.');
+    return;
+}
+
                 
                 // تحديث بنك الأسئلة باستخدام أسئلة اليوم المحدد والقيام بخلط الأسئلة والخيارات
                 const originalQuestions = [...ramadanQuestions[questionDay]];
