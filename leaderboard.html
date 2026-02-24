@@ -14,59 +14,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
 *{font-family:'Cairo',sans-serif}
 
-.trophy-1{color:#FFD700}
-.trophy-2{color:#C0C0C0}
-.trophy-3{color:#CD7F32}
+/* ✨ تأثير احترافي للفائز */
+@keyframes glowPulse{
+0%{box-shadow:0 0 10px rgba(255,215,0,.3)}
+50%{box-shadow:0 0 25px rgba(255,215,0,.8)}
+100%{box-shadow:0 0 10px rgba(255,215,0,.3)}
+}
+
+.winner-effect{
+animation:glowPulse 2s infinite;
+transform:scale(1.03);
+}
 </style>
 </head>
 
-<body class="bg-gradient-to-b from-blue-900 to-indigo-950 min-h-screen">
+<body class="bg-gradient-to-b from-blue-900 to-indigo-950 min-h-screen text-white">
 
-<div class="bg-white/5 border-b border-white/10 p-3 text-white">
-<div class="max-w-3xl mx-auto flex justify-between">
-<span id="day-name" class="text-blue-400"></span>
-<span id="current-date" class="text-green-400"></span>
-</div>
-</div>
+<div class="p-6 max-w-4xl mx-auto">
 
-<div id="results-screen" class="p-6">
-<div class="max-w-4xl mx-auto">
+<div class="grid md:grid-cols-3 gap-4 mb-8">
 
-<!-- عداد المشاركين -->
-<div id="participants-count" class="text-center text-blue-300 font-bold mb-4"></div>
-
-<!-- تاج الأسرع -->
-<div id="fastest-player" class="text-center text-orange-400 font-bold mb-6"></div>
-
-<div class="text-center mb-8">
-<h1 class="text-3xl font-bold text-yellow-400 mb-2">نتائج مسابقة اليوم</h1>
-<p class="text-green-100" id="results-date"></p>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-
-<div class="bg-white/10 border-2 border-silver/30 rounded-2xl p-6 text-center">
-<i data-lucide="trophy" class="w-12 h-12 mx-auto trophy-2"></i>
-<div class="font-bold">المركز الثاني</div>
-<div id="second-place"></div>
-</div>
-
-<div class="bg-white/10 border-2 border-yellow-400/30 rounded-2xl p-8 text-center scale-105">
-<i data-lucide="trophy" class="w-16 h-16 mx-auto trophy-1"></i>
-<div class="font-bold text-yellow-400 text-lg">المركز الأول</div>
+<!-- المركز الأول -->
+<div id="first-card" class="bg-[#3d5191] border border-yellow-400 rounded-2xl p-8 text-center transition">
+<i data-lucide="trophy" class="w-16 h-16 mx-auto text-yellow-400"></i>
+<div class="text-yellow-400 font-bold text-lg mt-2">المركز الأول</div>
 <div id="first-place"></div>
 </div>
 
-<div class="bg-white/10 border-2 border-bronze/30 rounded-2xl p-6 text-center">
-<i data-lucide="trophy" class="w-12 h-12 mx-auto trophy-3"></i>
-<div class="font-bold">المركز الثالث</div>
+<!-- المركز الثاني -->
+<div id="second-card" class="bg-[#3d5191] border border-gray-300 rounded-2xl p-6 text-center">
+<i data-lucide="trophy" class="w-12 h-12 mx-auto text-gray-300"></i>
+<div class="font-bold mt-2">المركز الثاني</div>
+<div id="second-place"></div>
+</div>
+
+<!-- المركز الثالث -->
+<div id="third-card" class="bg-[#3d5191] border border-orange-400 rounded-2xl p-6 text-center">
+<i data-lucide="trophy" class="w-12 h-12 mx-auto text-orange-400"></i>
+<div class="font-bold mt-2">المركز الثالث</div>
 <div id="third-place"></div>
 </div>
 
 </div>
 
-<div class="bg-white/10 border-2 border-green-400/20 rounded-2xl p-6">
-<h3 class="text-xl font-bold text-green-400 mb-4">جميع النتائج</h3>
+<div class="bg-white/10 rounded-2xl p-6">
+<h3 class="text-green-400 font-bold mb-4">جميع النتائج</h3>
 <table class="w-full text-white">
 <thead>
 <tr class="border-b border-green-400/20">
@@ -81,7 +73,6 @@
 </div>
 
 </div>
-</div>
 
 <script>
 const firebaseConfig={
@@ -93,77 +84,78 @@ projectId:"ramadanmotaz-5570f"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
-function updateDateTime(){
-const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-const now=new Date();
-document.getElementById('day-name').textContent=days[now.getDay()];
-document.getElementById('current-date').textContent=now.toLocaleDateString('ar-SA');
-}
-
-function getTodayFormatted(){
+function getToday(){
 const n=new Date();
 return `${String(n.getDate()).padStart(2,'0')}-${String(n.getMonth()+1).padStart(2,'0')}-${n.getFullYear()}`;
 }
 
 async function fetchResults(){
-const todayKey=getTodayFormatted();
 
-const snapshot=await db.collection('scores')
-.where('participationDate','==',todayKey)
+const today=getToday();
+
+const snap=await db.collection('scores')
+.where('participationDate','==',today)
 .orderBy('score','desc')
 .orderBy('totalTime','asc')
 .get();
 
 const results=[];
-snapshot.forEach(doc=>results.push(doc.data()));
-
+snap.forEach(d=>results.push(d.data()));
 if(results.length===0)return;
-
-// ✅ عداد المشاركين
-document.getElementById('participants-count').textContent=
-`عدد المشاركين اليوم: ${results.length}`;
 
 const top3=results.slice(0,3);
 
+// أسرع ضمن الثلاثة
+const fastest=top3.reduce((a,b)=>Number(a.totalTime)<Number(b.totalTime)?a:b);
+
+// 🏆 المركز الأول
+const first=top3[0];
+
 document.getElementById('first-place').innerHTML=
-`<div>${top3[0].playerName}</div><div>${top3[0].score} نقطة</div><div>${Number(top3[0].totalTime).toFixed(2)} ث</div>`;
+`<div class="font-bold">${first.playerName}</div>
+<div class="text-yellow-400">${first.score} نقطة</div>
+<div class="opacity-70">${Number(first.totalTime).toFixed(2)} ثانية</div>
+${fastest.playerName===first.playerName?'<div class="text-yellow-300 text-sm mt-1">🔥 أسرع إجابة</div>':''}`;
 
-if(top3[1])
+// تأثير إذا جمع اللقبين
+if(fastest.playerName===first.playerName){
+document.getElementById('first-card').classList.add('winner-effect');
+}
+
+// المركز الثاني
+if(top3[1]){
+const s=top3[1];
 document.getElementById('second-place').innerHTML=
-`<div>${top3[1].playerName}</div><div>${top3[1].score} نقطة</div><div>${Number(top3[1].totalTime).toFixed(2)} ث</div>`;
+`<div class="font-bold">${s.playerName}</div>
+<div>${s.score} نقطة</div>
+<div class="opacity-70">${Number(s.totalTime).toFixed(2)} ثانية</div>
+${fastest.playerName===s.playerName?'<div class="text-yellow-300 text-sm mt-1">🔥 أسرع إجابة</div>':''}`;
+}
 
-if(top3[2])
+// المركز الثالث
+if(top3[2]){
+const t=top3[2];
 document.getElementById('third-place').innerHTML=
-`<div>${top3[2].playerName}</div><div>${top3[2].score} نقطة</div><div>${Number(top3[2].totalTime).toFixed(2)} ث</div>`;
+`<div class="font-bold">${t.playerName}</div>
+<div>${t.score} نقطة</div>
+<div class="opacity-70">${Number(t.totalTime).toFixed(2)} ثانية</div>
+${fastest.playerName===t.playerName?'<div class="text-yellow-300 text-sm mt-1">🔥 أسرع إجابة</div>':''}`;
+}
 
-// 🔥 الأسرع ضمن أول 3
-let fastest=top3.reduce((a,b)=>Number(a.totalTime)<Number(b.totalTime)?a:b);
-
-let badge=`🔥 أسرع إجابة اليوم: ${fastest.playerName}`;
-if(fastest.playerName===top3[0].playerName)
-badge=`🏆🔥 ${fastest.playerName} جمع بين المركز الأول وأسرع إجابة`;
-
-document.getElementById('fastest-player').textContent=badge;
-
-// جدول كامل
+// الجدول
 document.getElementById('results-table').innerHTML=
 results.map((r,i)=>`
 <tr class="border-b border-white/10">
 <td class="p-3">${i+1}</td>
 <td class="p-3">${r.playerName}</td>
 <td class="p-3">${r.score}</td>
-<td class="p-3">${Number(r.totalTime).toFixed(2)} ث</td>
+<td class="p-3">${Number(r.totalTime).toFixed(2)} ثانية</td>
 </tr>`).join('');
-
-document.getElementById('results-date').textContent=
-`نتائج ${new Date().toLocaleDateString('ar-SA')}`;
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
-updateDateTime();
 fetchResults();
 lucide.createIcons();
-});
 </script>
+
 </body>
-</html> 
+</html>
