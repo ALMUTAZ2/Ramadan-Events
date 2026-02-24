@@ -1,276 +1,169 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المتصدرين - فوازير رمضان</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
-        
-        * {
-            font-family: 'Cairo', sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المتصدرين - فوازير رمضان</title>
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-        .animate-slide-in { animation: slideIn 0.5s ease-out forwards; }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+*{font-family:'Cairo',sans-serif}
 
-        .trophy-1 { color: #FFD700; }
-        .trophy-2 { color: #C0C0C0; }
-        .trophy-3 { color: #CD7F32; }
-    </style>
+.trophy-1{color:#FFD700}
+.trophy-2{color:#C0C0C0}
+.trophy-3{color:#CD7F32}
+</style>
 </head>
+
 <body class="bg-gradient-to-b from-blue-900 to-indigo-950 min-h-screen">
-    <!-- شريط التاريخ -->
-    <div class="bg-white/5 backdrop-blur-sm border-b border-white/10 p-3 text-white">
-        <div class="max-w-3xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span id="day-name" class="text-blue-400"></span>
-            </div>
-            <div class="flex items-center gap-2">
-                <span id="current-date" class="text-green-400"></span>
-            </div>
-        </div>
-    </div>
 
-    <!-- شاشة انتظار النتائج -->
-    <div id="waiting-screen" class="hidden min-h-[calc(100vh-64px)] flex items-center justify-center p-6">
-        <div class="max-w-md w-full">
-            <div class="bg-white/10 backdrop-blur-lg border-2 border-yellow-400/20 rounded-3xl p-8 text-center">
-                <i data-lucide="hourglass" class="w-16 h-16 mx-auto text-yellow-400 mb-4"></i>
-                <h2 class="text-2xl font-bold text-yellow-400 mb-4">النتائج قيد التحديث</h2>
-                <p class="text-gray-300 mb-4">سيتم نشر نتائج اليوم بعد انتهاء المسابقة في تمام الساعة 8 مساءً</p>
-                <button onclick="location.href='index.html'" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 rounded-xl">
-                    العودة للصفحة الرئيسية
-                </button>
-            </div>
-        </div>
-    </div>
+<div class="bg-white/5 border-b border-white/10 p-3 text-white">
+<div class="max-w-3xl mx-auto flex justify-between">
+<span id="day-name" class="text-blue-400"></span>
+<span id="current-date" class="text-green-400"></span>
+</div>
+</div>
 
-    <!-- شاشة النتائج -->
-    <div id="results-screen" class="hidden p-6">
-        <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-yellow-400 mb-2">نتائج مسابقة اليوم</h1>
-                <p class="text-green-400" id="results-date"></p>
-            </div>
+<div id="results-screen" class="p-6">
+<div class="max-w-4xl mx-auto">
 
-            <!-- المراكز الثلاثة الأولى -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <!-- المركز الثاني -->
-                <div class="order-2 md:order-1">
-                    <div class="bg-white/10 backdrop-blur-lg border-2 border-silver/30 rounded-2xl p-6 text-center">
-                        <div class="trophy-2 mb-2">
-                            <i data-lucide="trophy" class="w-12 h-12 mx-auto"></i>
-                        </div>
-                        <div class="text-silver font-bold">المركز الثاني</div>
-                        <div id="second-place" class="text-white mt-2"></div>
-                    </div>
-                </div>
-                
-                <!-- المركز الأول -->
-                <div class="order-1 md:order-2">
-                    <div class="bg-white/10 backdrop-blur-lg border-2 border-yellow-400/30 rounded-2xl p-8 text-center transform md:scale-110">
-                        <div class="trophy-1 mb-2">
-                            <i data-lucide="trophy" class="w-16 h-16 mx-auto"></i>
-                        </div>
-                        <div class="text-yellow-400 font-bold text-lg">المركز الأول</div>
-                        <div id="first-place" class="text-white mt-2"></div>
-                    </div>
-                </div>
-                
-                <!-- المركز الثالث -->
-                <div class="order-3">
-                    <div class="bg-white/10 backdrop-blur-lg border-2 border-bronze/30 rounded-2xl p-6 text-center">
-                        <div class="trophy-3 mb-2">
-                            <i data-lucide="trophy" class="w-12 h-12 mx-auto"></i>
-                        </div>
-                        <div class="text-bronze font-bold">المركز الثالث</div>
-                        <div id="third-place" class="text-white mt-2"></div>
-                    </div>
-                </div>
-            </div>
+<!-- عداد المشاركين -->
+<div id="participants-count" class="text-center text-blue-300 font-bold mb-4"></div>
 
-            <!-- باقي المتسابقين -->
-            <div class="bg-white/10 backdrop-blur-lg border-2 border-green-400/20 rounded-2xl p-6">
-                <h3 class="text-xl font-bold text-green-400 mb-4">جميع النتائج</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-white">
-                        <thead>
-                            <tr class="border-b-2 border-green-400/20">
-                                <th class="p-3 text-right">المركز</th>
-                                <th class="p-3 text-right">الاسم</th>
-                                <th class="p-3 text-right">النقاط</th>
-                                <th class="p-3 text-right">الوقت</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-table"></tbody>
-                    </table>
-                </div>
-            </div>
+<!-- تاج الأسرع -->
+<div id="fastest-player" class="text-center text-orange-400 font-bold mb-6"></div>
 
-            <div class="text-center mt-8">
-                <button onclick="location.href='index.html'" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-xl">
-                    العودة للصفحة الرئيسية
-                </button>
-            </div>
-        </div>
-    </div>
+<div class="text-center mb-8">
+<h1 class="text-3xl font-bold text-yellow-400 mb-2">نتائج مسابقة اليوم</h1>
+<p class="text-green-100" id="results-date"></p>
+</div>
 
-    <script>
-        // تهيئة Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyC5RYK1lGaJaMQJmOH85cqNgv6m7rbLS_A",
-            authDomain: "ramadanmotaz-5570f.firebaseapp.com",
-            projectId: "ramadanmotaz-5570f",
-            storageBucket: "ramadanmotaz-5570f.appspot.com",
-            messagingSenderId: "595667154066",
-            appId: "1:595667154066:web:80ba616566ec55a5efe24b"
-        };
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
 
-        let db;
-        try {
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-        } catch (error) {
-            console.error('Error initializing Firebase:', error);
-        }
+<div class="bg-white/10 border-2 border-silver/30 rounded-2xl p-6 text-center">
+<i data-lucide="trophy" class="w-12 h-12 mx-auto trophy-2"></i>
+<div class="font-bold">المركز الثاني</div>
+<div id="second-place"></div>
+</div>
 
-        // تحديث التاريخ
-        function updateDateTime() {
-            const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-            const now = new Date();
-            const dayName = days[now.getDay()];
-            const date = now.toLocaleDateString('ar-SA');
-            
-            document.getElementById('day-name').textContent = dayName;
-            document.getElementById('current-date').textContent = date;
-        }
+<div class="bg-white/10 border-2 border-yellow-400/30 rounded-2xl p-8 text-center scale-105">
+<i data-lucide="trophy" class="w-16 h-16 mx-auto trophy-1"></i>
+<div class="font-bold text-yellow-400 text-lg">المركز الأول</div>
+<div id="first-place"></div>
+</div>
 
-        // ✅ نفس تنسيق index.html (DD-MM-YYYY)
-        function getTodayFormatted() {
-            const now = new Date();
-            const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear();
-            return `${day}-${month}-${year}`;
-        }
+<div class="bg-white/10 border-2 border-bronze/30 rounded-2xl p-6 text-center">
+<i data-lucide="trophy" class="w-12 h-12 mx-auto trophy-3"></i>
+<div class="font-bold">المركز الثالث</div>
+<div id="third-place"></div>
+</div>
 
-        // جلب النتائج
-        async function fetchResults() {
-            try {
-                const todayKey = getTodayFormatted();
+</div>
 
-                // ✅ استعلام ثابت على participationDate + ترتيب بالنقاط ثم الوقت
-                // ملاحظة: قد يطلب Firestore إنشاء Index (مرة واحدة فقط)
-                const snapshot = await db.collection('scores')
-                    .where('participationDate', '==', todayKey)
-                    .orderBy('score', 'desc')
-                    .orderBy('totalTime', 'asc')
-                    .get();
+<div class="bg-white/10 border-2 border-green-400/20 rounded-2xl p-6">
+<h3 class="text-xl font-bold text-green-400 mb-4">جميع النتائج</h3>
+<table class="w-full text-white">
+<thead>
+<tr class="border-b border-green-400/20">
+<th class="p-3">المركز</th>
+<th class="p-3">الاسم</th>
+<th class="p-3">النقاط</th>
+<th class="p-3">الوقت</th>
+</tr>
+</thead>
+<tbody id="results-table"></tbody>
+</table>
+</div>
 
-                const results = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data() || {};
-                    results.push({
-                        id: doc.id,
-                        ...data
-                    });
-                });
+</div>
+</div>
 
-                // لو ما في نتائج
-                if (results.length === 0) {
-                    document.getElementById('first-place').innerHTML = `<div class="opacity-80">لا توجد نتائج لليوم بعد</div>`;
-                    document.getElementById('second-place').innerHTML = `<div class="opacity-80">—</div>`;
-                    document.getElementById('third-place').innerHTML = `<div class="opacity-80">—</div>`;
-                    document.getElementById('results-table').innerHTML = `
-                        <tr class="border-b border-white/10">
-                            <td class="p-3" colspan="4">لا توجد نتائج لليوم حتى الآن.</td>
-                        </tr>
-                    `;
-                    document.getElementById('results-date').textContent =
-                        `نتائج ${new Date().toLocaleDateString('ar-SA')}`;
-                    return;
-                }
+<script>
+const firebaseConfig={
+apiKey:"AIzaSyC5RYK1lGaJaMQJmOH85cqNgv6m7rbLS_A",
+authDomain:"ramadanmotaz-5570f.firebaseapp.com",
+projectId:"ramadanmotaz-5570f"
+};
 
-                // عرض المراكز الثلاثة الأولى
-                if (results.length > 0) {
-                    document.getElementById('first-place').innerHTML = `
-                        <div class="font-bold">${results[0].playerName || ''}</div>
-                        <div class="text-yellow-400">${results[0].score ?? 0} نقطة</div>
-                        <div class="text-sm opacity-75">${Number(results[0].totalTime || 0).toFixed(2)} ثانية</div>
-                    `;
-                }
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
 
-                if (results.length > 1) {
-                    document.getElementById('second-place').innerHTML = `
-                        <div class="font-bold">${results[1].playerName || ''}</div>
-                        <div class="text-silver">${results[1].score ?? 0} نقطة</div>
-                        <div class="text-sm opacity-75">${Number(results[1].totalTime || 0).toFixed(2)} ثانية</div>
-                    `;
-                } else {
-                    document.getElementById('second-place').innerHTML = `<div class="opacity-80">—</div>`;
-                }
+function updateDateTime(){
+const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const now=new Date();
+document.getElementById('day-name').textContent=days[now.getDay()];
+document.getElementById('current-date').textContent=now.toLocaleDateString('ar-SA');
+}
 
-                if (results.length > 2) {
-                    document.getElementById('third-place').innerHTML = `
-                        <div class="font-bold">${results[2].playerName || ''}</div>
-                        <div class="text-bronze">${results[2].score ?? 0} نقطة</div>
-                        <div class="text-sm opacity-75">${Number(results[2].totalTime || 0).toFixed(2)} ثانية</div>
-                    `;
-                } else {
-                    document.getElementById('third-place').innerHTML = `<div class="opacity-80">—</div>`;
-                }
+function getTodayFormatted(){
+const n=new Date();
+return `${String(n.getDate()).padStart(2,'0')}-${String(n.getMonth()+1).padStart(2,'0')}-${n.getFullYear()}`;
+}
 
-                // عرض جميع النتائج في الجدول
-                const tableBody = document.getElementById('results-table');
-                tableBody.innerHTML = results.map((result, index) => `
-                    <tr class="border-b border-white/10 animate-slide-in" style="animation-delay: ${index * 0.1}s">
-                        <td class="p-3">${index + 1}</td>
-                        <td class="p-3">${result.playerName || ''}</td>
-                        <td class="p-3">${result.score ?? 0}</td>
-                        <td class="p-3">${Number(result.totalTime || 0).toFixed(2)} ثانية</td>
-                    </tr>
-                `).join('');
+async function fetchResults(){
+const todayKey=getTodayFormatted();
 
-                // تحديث تاريخ النتائج
-                document.getElementById('results-date').textContent =
-                    `نتائج ${new Date().toLocaleDateString('ar-SA')}`;
+const snapshot=await db.collection('scores')
+.where('participationDate','==',todayKey)
+.orderBy('score','desc')
+.orderBy('totalTime','asc')
+.get();
 
-            } catch (error) {
-                console.error('Error fetching results:', error);
+const results=[];
+snapshot.forEach(doc=>results.push(doc.data()));
 
-                // لو المشكلة Index required راح تظهر في console برابط الإنشاء
-                alert('حدث خطأ في جلب النتائج. يرجى تحديث الصفحة.');
-            }
-        }
+if(results.length===0)return;
 
-        // تهيئة الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            updateDateTime();
-            lucide.createIcons();
+// ✅ عداد المشاركين
+document.getElementById('participants-count').textContent=
+`عدد المشاركين اليوم: ${results.length}`;
 
-            const now = new Date();
-            const hour = now.getHours();
-            const minutes = now.getMinutes();
+const top3=results.slice(0,3);
 
-            // اظهار النتائج بعد 20:00
-            if (hour > 20 || (hour === 20 && minutes >= 0)) {
-                document.getElementById('waiting-screen').classList.add('hidden');
-                document.getElementById('results-screen').classList.remove('hidden');
-                fetchResults();
-            } else {
-                document.getElementById('waiting-screen').classList.remove('hidden');
-                document.getElementById('results-screen').classList.add('hidden');
-            }
-        });
-    </script>
+document.getElementById('first-place').innerHTML=
+`<div>${top3[0].playerName}</div><div>${top3[0].score} نقطة</div><div>${Number(top3[0].totalTime).toFixed(2)} ث</div>`;
+
+if(top3[1])
+document.getElementById('second-place').innerHTML=
+`<div>${top3[1].playerName}</div><div>${top3[1].score} نقطة</div><div>${Number(top3[1].totalTime).toFixed(2)} ث</div>`;
+
+if(top3[2])
+document.getElementById('third-place').innerHTML=
+`<div>${top3[2].playerName}</div><div>${top3[2].score} نقطة</div><div>${Number(top3[2].totalTime).toFixed(2)} ث</div>`;
+
+// 🔥 الأسرع ضمن أول 3
+let fastest=top3.reduce((a,b)=>Number(a.totalTime)<Number(b.totalTime)?a:b);
+
+let badge=`🔥 أسرع إجابة اليوم: ${fastest.playerName}`;
+if(fastest.playerName===top3[0].playerName)
+badge=`🏆🔥 ${fastest.playerName} جمع بين المركز الأول وأسرع إجابة`;
+
+document.getElementById('fastest-player').textContent=badge;
+
+// جدول كامل
+document.getElementById('results-table').innerHTML=
+results.map((r,i)=>`
+<tr class="border-b border-white/10">
+<td class="p-3">${i+1}</td>
+<td class="p-3">${r.playerName}</td>
+<td class="p-3">${r.score}</td>
+<td class="p-3">${Number(r.totalTime).toFixed(2)} ث</td>
+</tr>`).join('');
+
+document.getElementById('results-date').textContent=
+`نتائج ${new Date().toLocaleDateString('ar-SA')}`;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+updateDateTime();
+fetchResults();
+lucide.createIcons();
+});
+</script>
 </body>
-</html>
+</html> 
