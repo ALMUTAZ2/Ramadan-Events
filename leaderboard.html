@@ -47,7 +47,23 @@
     </div>
   </div>
 
-  <div class="p-6 max-w-5xl mx-auto">
+  <!-- ✅ شاشة الإغلاق حتى 8 مساءً -->
+  <div id="waiting-screen" class="hidden p-6 max-w-5xl mx-auto">
+    <div class="flex items-center justify-center min-h-[70vh]">
+      <div class="card-base border-2 border-yellow-400/30 p-10 text-center max-w-md w-full">
+        <i data-lucide="hourglass" class="w-16 h-16 mx-auto text-yellow-400 mb-4"></i>
+        <h2 class="text-2xl font-bold text-yellow-400 mb-2">النتائج قيد التحديث</h2>
+        <p class="text-gray-300 mb-6">سيتم نشر نتائج اليوم في تمام الساعة 8 مساءً</p>
+        <button onclick="location.href='ramadan.html'"
+          class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-6 py-3 rounded-xl">
+          العودة لصفحة المسابقة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ شاشة النتائج -->
+  <div id="results-screen" class="hidden p-6 max-w-5xl mx-auto">
 
     <!-- عنوان نتائج مسابقة اليوم + التاريخ تحتها (مثل الصورة) -->
     <div class="text-center mb-6">
@@ -148,11 +164,10 @@
     return `${d}-${m}-${y}`;
   }
 
-  // تاريخ العنوان تحت "نتائج مسابقة اليوم" مثل الصورة
+  // تاريخ العنوان تحت "نتائج مسابقة اليوم"
   function setResultsTitleDate(){
     const now=new Date();
-    // ممكن تخليه ar-SA أو نفس DD-MM-YYYY
-    const hijriLike = now.toLocaleDateString('ar-SA'); 
+    const hijriLike = now.toLocaleDateString('ar-SA');
     document.getElementById('results-date').textContent = `نتائج ${hijriLike}`;
   }
 
@@ -247,14 +262,27 @@
     updateDateBar();
     setResultsTitleDate();
     lucide.createIcons();
-    try{
-      await fetchResults();
-    }catch(e){
-      console.error(e);
-      alert('حدث خطأ في جلب النتائج. تأكد من الاتصال والصلاحيات.');
+
+    const now = new Date();
+    const hour = now.getHours();
+
+    // ✅ الخيار 2: النتائج تظهر من 8 مساءً إلى 11:59 مساءً فقط
+    if(hour >= 20 && hour < 24){
+      document.getElementById('waiting-screen').classList.add('hidden');
+      document.getElementById('results-screen').classList.remove('hidden');
+      try{
+        await fetchResults();
+      }catch(e){
+        console.error(e);
+        alert('حدث خطأ في جلب النتائج. تأكد من الاتصال والصلاحيات.');
+      }
+    } else {
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('waiting-screen').classList.remove('hidden');
+      lucide.createIcons();
     }
   });
 </script>
 
 </body>
-</html>
+</html> 
