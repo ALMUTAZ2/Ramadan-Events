@@ -110,12 +110,17 @@
             <input type="text" id="player-name" placeholder="الاسم الكريم"
               class="w-full bg-white/5 border-2 border-green-400/20 text-center text-lg py-6 rounded-xl text-white" />
 
-            <input type="email" id="player-email" placeholder="البريد الإلكتروني (اختياري)"
+            <!-- ✅ تعديل 1: رقم الجوال بدل البريد -->
+            <input type="tel" id="player-phone" inputmode="numeric" maxlength="10" placeholder="رقم الجوال (05xxxxxxxx)"
               class="w-full bg-white/5 border-2 border-green-400/20 text-center text-lg py-6 rounded-xl text-white" />
+
+            <p class="text-xs text-gray-400 text-center">
+              الوسيلة الوحيدة لتسليم الجائزة في حال الفوز
+            </p>
           </div>
 
           <button id="start-button"
-            class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-6 rounded-xl text-lg flex items-center justify-center gap-2"
+            class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-6 rounded-xl text-lg flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
             disabled>
             <i data-lucide="sparkles" class="w-5 h-5"></i>
             بدء المسابقة
@@ -160,39 +165,38 @@
     </div>
   </div>
 
-
-  <!-- شاشة الشكر --><div id="thank-you-screen" class="min-h-screen text-white p-6 hidden">
-  <div class="max-w-2xl mx-auto">
-    <div class="bg-white/10 backdrop-blur-lg border-2 border-green-400/20 rounded-2xl p-8 text-center">
-      <div class="relative h-32 mb-6">
-        <div class="floating-moon">
-          <i data-lucide="moon" class="w-20 h-20 mx-auto text-yellow-400"></i>
+  <!-- شاشة الشكر -->
+  <div id="thank-you-screen" class="min-h-screen text-white p-6 hidden">
+    <div class="max-w-2xl mx-auto">
+      <div class="bg-white/10 backdrop-blur-lg border-2 border-green-400/20 rounded-2xl p-8 text-center">
+        <div class="relative h-32 mb-6">
+          <div class="floating-moon">
+            <i data-lucide="moon" class="w-20 h-20 mx-auto text-yellow-400"></i>
+          </div>
+          <div class="absolute bottom-0 w-full">
+            <i data-lucide="star" class="star w-4 h-4" style="left: calc(50% - 20px);"></i>
+            <i data-lucide="star" class="star w-4 h-4" style="left: 50%;"></i>
+            <i data-lucide="star" class="star w-4 h-4" style="left: calc(50% + 20px);"></i>
+          </div>
         </div>
-        <div class="absolute bottom-0 w-full">
-          <i data-lucide="star" class="star w-4 h-4" style="left: calc(50% - 20px);"></i>
-          <i data-lucide="star" class="star w-4 h-4" style="left: 50%;"></i>
-          <i data-lucide="star" class="star w-4 h-4" style="left: calc(50% + 20px);"></i>
+
+        <h3 class="text-2xl font-bold text-yellow-400 mb-6">
+          شكراً لمشاركتك معنا ورمضان كريم
+        </h3>
+
+        <div class="prose prose-invert max-w-none">
+          <p class="text-gray-300">
+            ترقب النتائج قريباً — مشاركة موفقة 🌟
+          </p>
         </div>
-      </div>  <!-- العنوان الرئيسي -->
-  <h3 class="text-2xl font-bold text-yellow-400 mb-6">
-    شكراً لمشاركتك معنا ورمضان كريم
-  </h3>
 
-  <!-- النص الرمادي -->
-  <div class="prose prose-invert max-w-none">
-    <p class="text-gray-300">
-      ترقب النتائج قريباً — مشاركة موفقة 🌟
-    </p>
+        <button id="show-results-button"
+          class="mt-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-xl text-lg">
+          عرض النتائج
+        </button>
+      </div>
+    </div>
   </div>
-
-  <button id="show-results-button"
-    class="mt-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-xl text-lg">
-    عرض النتائج
-  </button>
-</div>
-
-  </div>
-  </div> 
 
   <!-- شاشة النتائج -->
   <div id="results-screen" class="min-h-screen text-white p-6 hidden">
@@ -243,7 +247,8 @@
     }
 
     // ==========================
-    // بنك الأسئلة (نفس مضمونك)
+    // بنك الأسئلة
+    // ✅ ملاحظة: يوم 15 و 16 = 25 سؤال (جاهزة)
     // ==========================
     const ramadanQuestions = {
       6: [
@@ -253,134 +258,228 @@
         { question: "ما هي العبادة التي تُستحب في النصف الثاني من رمضان؟", options: ["الاعتكاف", "صيام النوافل", "صلاة الضحى", "قيام الليل"], correct: 0 },
         { question: "كم مرة ختم النبي ﷺ القرآن في رمضان مع جبريل عليه السلام؟", options: ["مرة واحدة", "مرتين", "ثلاث مرات", "أربع مرات"], correct: 1 }
       ],
-      
-  
 
-  7: [
-    { question: "كم عدد أركان الإسلام؟", options: ["ثلاثة", "أربعة", "خمسة", "ستة"], correct: 2 },
-    { question: "في أي سنة هجرية فُرض صيام رمضان؟", options: ["1 هـ", "2 هـ", "3 هـ", "4 هـ"], correct: 1 },
-    { question: "ما أول معركة كبرى فاصلة في الإسلام؟", options: ["أحد", "الخندق", "بدر", "حنين"], correct: 2 },
-    { question: "في أي يوم من رمضان وقعت غزوة بدر؟", options: ["10 رمضان", "15 رمضان", "17 رمضان", "20 رمضان"], correct: 2 },
-    { question: "كم عدد المسلمين الذين شهدوا بدر تقريبًا؟", options: ["200", "313", "500", "700"], correct: 1 }
-  ],
+      7: [
+        { question: "كم عدد أركان الإسلام؟", options: ["ثلاثة", "أربعة", "خمسة", "ستة"], correct: 2 },
+        { question: "في أي سنة هجرية فُرض صيام رمضان؟", options: ["1 هـ", "2 هـ", "3 هـ", "4 هـ"], correct: 1 },
+        { question: "ما أول معركة كبرى فاصلة في الإسلام؟", options: ["أحد", "الخندق", "بدر", "حنين"], correct: 2 },
+        { question: "في أي يوم من رمضان وقعت غزوة بدر؟", options: ["10 رمضان", "15 رمضان", "17 رمضان", "20 رمضان"], correct: 2 },
+        { question: "كم عدد المسلمين الذين شهدوا بدر تقريبًا؟", options: ["200", "313", "500", "700"], correct: 1 }
+      ],
 
-  8: [
-  { question: "كم مرة ذُكر اسم شهر رمضان في القرآن الكريم؟", options: ["مرة واحدة", "مرتين", "ثلاث مرات", "أربع مرات"], correct: 0 },
-  { question: "ما أول مسجد بُني في الإسلام؟", options: ["المسجد الحرام", "المسجد النبوي", "مسجد قباء", "المسجد الأقصى"], correct: 2 },
+      8: [
+        { question: "كم مرة ذُكر اسم شهر رمضان في القرآن الكريم؟", options: ["مرة واحدة", "مرتين", "ثلاث مرات", "أربع مرات"], correct: 0 },
+        { question: "ما أول مسجد بُني في الإسلام؟", options: ["المسجد الحرام", "المسجد النبوي", "مسجد قباء", "المسجد الأقصى"], correct: 2 },
+        { question: "من أول الخلفاء الراشدين؟", options: ["عمر", "عثمان", "علي", "أبو بكر الصديق"], correct: 3 },
+        { question: "ما اسم الغار الذي نزل فيه الوحي أول مرة؟", options: ["غار ثور", "غار حراء", "غار أحد", "غار قباء"], correct: 1 },
+        { question: "ما أول ما نزل من القرآن؟", options: ["الفاتحة", "اقرأ باسم ربك", "المدثر", "الضحى"], correct: 1 }
+      ],
+
+      9: [
+        { question: "كم عدد سور القرآن الكريم؟", options: ["100", "110", "114", "120"], correct: 2 },
+        { question: "كم عدد أجزاء القرآن؟", options: ["20", "25", "30", "40"], correct: 2 },
+        { question: "من خاتم الأنبياء؟", options: ["عيسى", "موسى", "محمد ﷺ", "إبراهيم"], correct: 2 },
+        { question: "كم استمرت الدعوة في مكة قبل الهجرة؟", options: ["10", "11", "12", "13"], correct: 3 },
+        { question: "ما اسم عام ولادة النبي ﷺ؟", options: ["عام الحزن", "عام الفيل", "عام بدر", "عام الهجرة"], correct: 1 }
+      ],
+
+      10: [
+        { question: "أين تقع الكعبة؟", options: ["المدينة", "مكة المكرمة", "الطائف", "القدس"], correct: 1 },
+        { question: "كم عدد الخلفاء الراشدين؟", options: ["3", "4", "5", "6"], correct: 1 },
+        { question: "من ثاني الخلفاء الراشدين؟", options: ["عثمان", "عمر بن الخطاب", "علي", "أبو بكر"], correct: 1 },
+        { question: "في أي سنة هجرية حدث فتح مكة؟", options: ["6 هـ", "7 هـ", "8 هـ", "9 هـ"], correct: 2 },
+        { question: "ما اسم الصلح الذي كان سببًا مباشرًا لفتح مكة؟", options: ["صلح الطائف", "صلح الحديبية", "صلح بدر", "صلح تبوك"], correct: 1 }
+      ],
+
+      11: [
+        { question: "ما اسم أم النبي ﷺ؟", options: ["آمنة بنت وهب", "خديجة", "فاطمة", "حفصة"], correct: 0 },
+        { question: "في أي مدينة هاجر النبي ﷺ؟", options: ["مكة", "المدينة المنورة", "الطائف", "القدس"], correct: 1 },
+        { question: "ما اسم زوجة النبي الأولى؟", options: ["عائشة", "خديجة رضي الله عنها", "حفصة", "زينب"], correct: 1 },
+        { question: "من أول من أسلم من النساء؟", options: ["عائشة", "خديجة رضي الله عنها", "حفصة", "أسماء"], correct: 1 },
+        { question: "ما اسم أول مسجد بناه النبي بعد الهجرة؟", options: ["المسجد النبوي", "مسجد قباء", "المسجد الحرام", "الأقصى"], correct: 1 }
+      ],
+
+       12: [
+
+  { question: "ما اسم شهر الصيام؟", options: ["رجب", "رمضان", "شوال", "ذو الحجة"], correct: 1 },
+  { question: "في أي سنة هجرية وقعت غزوة بدر؟", options: ["1 هـ", "2 هـ", "3 هـ", "4 هـ"], correct: 1 },
+  { question: "من قائد المسلمين في بدر؟", options: ["عمر", "النبي ﷺ", "علي", "أبو بكر"], correct: 1 },
+  { question: "ما اسم الليلة التي نزل فيها القرآن؟", options: ["ليلة القدر", "ليلة الجمعة", "ليلة النصف", "ليلة العيد"], correct: 0 },
+  { question: "في أي عشر من رمضان تُلتمس ليلة القدر؟", options: ["الأولى", "الأوسط", "الأواخر", "كل الشهر"], correct: 2 },
+
+  { question: "كم عدد أركان الإسلام؟", options: ["3", "4", "5", "6"], correct: 2 },
+  { question: "ما أول أركان الإسلام؟", options: ["الصلاة", "الزكاة", "الشهادتان", "الصيام"], correct: 2 },
+  { question: "كم عدد ركعات صلاة الفجر؟", options: ["2", "3", "4", "5"], correct: 0 },
+  { question: "ما اسم الصلاة التي تُصلّى في رمضان ليلاً؟", options: ["الوتر", "التراويح", "الضحى", "الكسوف"], correct: 1 },
+  { question: "كم عدد أجزاء القرآن الكريم؟", options: ["20", "25", "30", "40"], correct: 2 },
+
+  { question: "ما أطول سورة في القرآن؟", options: ["النساء", "آل عمران", "البقرة", "المائدة"], correct: 2 },
+  { question: "ما أقصر سورة في القرآن؟", options: ["الإخلاص", "الكوثر", "الفلق", "الناس"], correct: 1 },
+  { question: "كم عدد سور القرآن الكريم؟", options: ["110", "112", "114", "120"], correct: 2 },
+  { question: "من خاتم الأنبياء؟", options: ["عيسى", "موسى", "محمد ﷺ", "إبراهيم"], correct: 2 },
+  { question: "ما اسم أم النبي ﷺ؟", options: ["خديجة", "آمنة بنت وهب", "حفصة", "فاطمة"], correct: 1 },
+
+  { question: "في أي مدينة هاجر النبي ﷺ؟", options: ["مكة", "المدينة المنورة", "الطائف", "القدس"], correct: 1 },
   { question: "من أول الخلفاء الراشدين؟", options: ["عمر", "عثمان", "علي", "أبو بكر الصديق"], correct: 3 },
-  { question: "ما اسم الغار الذي نزل فيه الوحي أول مرة؟", options: ["غار ثور", "غار حراء", "غار أحد", "غار قباء"], correct: 1 },
-  { question: "ما أول ما نزل من القرآن؟", options: ["الفاتحة", "اقرأ باسم ربك", "المدثر", "الضحى"], correct: 1 }
+  { question: "كم عدد الخلفاء الراشدين؟", options: ["3", "4", "5", "6"], correct: 1 },
+  { question: "من ثاني الخلفاء الراشدين؟", options: ["عمر بن الخطاب", "عثمان", "علي", "أبو بكر"], correct: 0 },
+  { question: "من ثالث الخلفاء الراشدين؟", options: ["علي", "عثمان بن عفان", "عمر", "أبو بكر"], correct: 1 },
+
+  { question: "ما اسم الغار الذي نزل فيه الوحي؟", options: ["ثور", "حراء", "أحد", "قباء"], correct: 1 },
+  { question: "من أول من أسلم من النساء؟", options: ["عائشة", "خديجة رضي الله عنها", "حفصة", "أسماء"], correct: 1 },
+  { question: "كم استمرت الدعوة في مكة قبل الهجرة؟", options: ["10 سنوات", "11 سنة", "12 سنة", "13 سنة"], correct: 3 },
+  { question: "ما اسم عام ولادة النبي ﷺ؟", options: ["عام الفيل", "عام الحزن", "عام بدر", "عام الهجرة"], correct: 0 },
+  { question: "ما اسم أول مسجد بُني في الإسلام؟", options: ["المسجد الحرام", "المسجد النبوي", "مسجد قباء", "الأقصى"], correct: 2 }
+
 ],
 
-  9: [
-    { question: "كم عدد سور القرآن الكريم؟", options: ["100", "110", "114", "120"], correct: 2 },
-    { question: "كم عدد أجزاء القرآن؟", options: ["20", "25", "30", "40"], correct: 2 },
-    { question: "من خاتم الأنبياء؟", options: ["عيسى", "موسى", "محمد ﷺ", "إبراهيم"], correct: 2 },
-    { question: "كم استمرت الدعوة في مكة قبل الهجرة؟", options: ["10", "11", "12", "13"], correct: 3 },
-    { question: "ما اسم عام ولادة النبي ﷺ؟", options: ["عام الحزن", "عام الفيل", "عام بدر", "عام الهجرة"], correct: 1 }
-  ],
+       13: [
 
-  10: [
-    { question: "أين تقع الكعبة؟", options: ["المدينة", "مكة المكرمة", "الطائف", "القدس"], correct: 1 },
-    { question: "كم عدد الخلفاء الراشدين؟", options: ["3", "4", "5", "6"], correct: 1 },
-    { question: "من ثاني الخلفاء الراشدين؟", options: ["عثمان", "عمر بن الخطاب", "علي", "أبو بكر"], correct: 1 },
-    { question: "في أي سنة هجرية حدث فتح مكة؟", options: ["6 هـ", "7 هـ", "8 هـ", "9 هـ"], correct: 2 },
-    { question: "ما اسم الصلح الذي كان سببًا مباشرًا لفتح مكة؟", options: ["صلح الطائف", "صلح الحديبية", "صلح بدر", "صلح تبوك"], correct: 1 }
-  ],
+  { question: "ما اسم شهر الصيام؟", options: ["رجب", "رمضان", "شوال", "ذو الحجة"], correct: 1 },
+  { question: "في أي سنة هجرية وقعت غزوة بدر؟", options: ["1 هـ", "2 هـ", "3 هـ", "4 هـ"], correct: 1 },
+  { question: "من قائد المسلمين في بدر؟", options: ["عمر", "النبي ﷺ", "علي", "أبو بكر"], correct: 1 },
+  { question: "ما اسم الليلة التي نزل فيها القرآن؟", options: ["ليلة القدر", "ليلة الجمعة", "ليلة النصف", "ليلة العيد"], correct: 0 },
+  { question: "في أي عشر من رمضان تُلتمس ليلة القدر؟", options: ["الأولى", "الأوسط", "الأواخر", "كل الشهر"], correct: 2 },
 
-  11: [
-    { question: "ما اسم أم النبي ﷺ؟", options: ["آمنة بنت وهب", "خديجة", "فاطمة", "حفصة"], correct: 0 },
-    { question: "في أي مدينة هاجر النبي ﷺ؟", options: ["مكة", "المدينة المنورة", "الطائف", "القدس"], correct: 1 },
-    { question: "ما اسم زوجة النبي الأولى؟", options: ["عائشة", "خديجة رضي الله عنها", "حفصة", "زينب"], correct: 1 },
-    { question: "من أول من أسلم من النساء؟", options: ["عائشة", "خديجة رضي الله عنها", "حفصة", "أسماء"], correct: 1 },
-    { question: "ما اسم أول مسجد بناه النبي بعد الهجرة؟", options: ["المسجد النبوي", "مسجد قباء", "المسجد الحرام", "الأقصى"], correct: 1 }
-  ],
+  { question: "كم عدد أركان الإسلام؟", options: ["3", "4", "5", "6"], correct: 2 },
+  { question: "ما أول أركان الإسلام؟", options: ["الصلاة", "الزكاة", "الشهادتان", "الصيام"], correct: 2 },
+  { question: "كم عدد ركعات صلاة الفجر؟", options: ["2", "3", "4", "5"], correct: 0 },
+  { question: "ما اسم الصلاة التي تُصلّى في رمضان ليلاً؟", options: ["الوتر", "التراويح", "الضحى", "الكسوف"], correct: 1 },
+  { question: "كم عدد أجزاء القرآن الكريم؟", options: ["20", "25", "30", "40"], correct: 2 },
 
-  12: [
-    { question: "ما اسم شهر الصيام؟", options: ["رجب", "رمضان", "شوال", "ذو الحجة"], correct: 1 },
-    { question: "في أي سنة هجرية وقعت بدر؟", options: ["1 هـ", "2 هـ", "3 هـ", "4 هـ"], correct: 1 },
-    { question: "من قائد المسلمين في بدر؟", options: ["عمر", "النبي ﷺ", "علي", "أبو بكر"], correct: 1 },
-    { question: "ما اسم الليلة التي نزل فيها القرآن؟", options: ["ليلة القدر", "ليلة الجمعة", "ليلة النصف", "ليلة العيد"], correct: 0 },
-    { question: "في أي عشر من رمضان تُلتمس ليلة القدر؟", options: ["الأولى", "الأوسط", "الأواخر", "كل الشهر"], correct: 2 }
-  ],
+  { question: "ما أطول سورة في القرآن؟", options: ["النساء", "آل عمران", "البقرة", "المائدة"], correct: 2 },
+  { question: "ما أقصر سورة في القرآن؟", options: ["الإخلاص", "الكوثر", "الفلق", "الناس"], correct: 1 },
+  { question: "كم عدد سور القرآن الكريم؟", options: ["110", "112", "114", "120"], correct: 2 },
+  { question: "من خاتم الأنبياء؟", options: ["عيسى", "موسى", "محمد ﷺ", "إبراهيم"], correct: 2 },
+  { question: "ما اسم أم النبي ﷺ؟", options: ["خديجة", "آمنة بنت وهب", "حفصة", "فاطمة"], correct: 1 },
 
-  13: [
-    { question: "كم عدد أركان الإيمان؟", options: ["4", "5", "6", "7"], correct: 2 },
-    { question: "كم مرة يجب الحج في العمر؟", options: ["مرة واحدة", "مرتين", "ثلاث مرات", "أربع مرات"], correct: 0 },
-    { question: "ما الركن الرابع من أركان الإسلام؟", options: ["الصلاة", "الزكاة", "صيام رمضان", "الحج"], correct: 2 },
-    { question: "كم عدد أيام السنة الهجرية تقريبًا؟", options: ["354", "365", "360", "350"], correct: 0 },
-    { question: "ما أول أركان الإسلام؟", options: ["الصلاة", "الزكاة", "الشهادتان", "الصيام"], correct: 2 }
-  ],
+  { question: "في أي مدينة هاجر النبي ﷺ؟", options: ["مكة", "المدينة المنورة", "الطائف", "القدس"], correct: 1 },
+  { question: "من أول الخلفاء الراشدين؟", options: ["عمر", "عثمان", "علي", "أبو بكر الصديق"], correct: 3 },
+  { question: "كم عدد الخلفاء الراشدين؟", options: ["3", "4", "5", "6"], correct: 1 },
+  { question: "من ثاني الخلفاء الراشدين؟", options: ["عمر بن الخطاب", "عثمان", "علي", "أبو بكر"], correct: 0 },
+  { question: "من ثالث الخلفاء الراشدين؟", options: ["علي", "عثمان بن عفان", "عمر", "أبو بكر"], correct: 1 },
 
-  14: [
-    { question: "ما أول سورة في القرآن؟", options: ["البقرة", "الفاتحة", "العلق", "يس"], correct: 1 },
-    { question: "كم عدد ركعات صلاة الفجر؟", options: ["2", "3", "4", "5"], correct: 0 },
-    { question: "ما اسم صلاة الليل في رمضان؟", options: ["الوتر", "التراويح", "الضحى", "التهجد"], correct: 1 },
-    { question: "ما أطول سورة في القرآن؟", options: ["آل عمران", "النساء", "البقرة", "المائدة"], correct: 2 },
-    { question: "ما أقصر سورة في القرآن؟", options: ["الإخلاص", "الكوثر", "الفلق", "الناس"], correct: 1 }
-  ],
+  { question: "ما اسم الغار الذي نزل فيه الوحي؟", options: ["ثور", "حراء", "أحد", "قباء"], correct: 1 },
+  { question: "من أول من أسلم من النساء؟", options: ["عائشة", "خديجة رضي الله عنها", "حفصة", "أسماء"], correct: 1 },
+  { question: "كم استمرت الدعوة في مكة قبل الهجرة؟", options: ["10 سنوات", "11 سنة", "12 سنة", "13 سنة"], correct: 3 },
+  { question: "ما اسم عام ولادة النبي ﷺ؟", options: ["عام الفيل", "عام الحزن", "عام بدر", "عام الهجرة"], correct: 0 },
+  { question: "ما اسم أول مسجد بُني في الإسلام؟", options: ["المسجد الحرام", "المسجد النبوي", "مسجد قباء", "الأقصى"], correct: 2 }
 
-  15: [
-    { question: "من أول مؤذن في الإسلام؟", options: ["بلال بن رباح", "عمار", "سلمان", "ابن مسعود"], correct: 0 },
-    { question: "من ثالث الخلفاء الراشدين؟", options: ["عمر", "عثمان بن عفان", "علي", "أبو بكر"], correct: 1 },
-    { question: "من رابع الخلفاء الراشدين؟", options: ["عثمان", "علي بن أبي طالب", "عمر", "أبو بكر"], correct: 1 },
-    { question: "من الخليفة الذي جمع القرآن أول مرة؟", options: ["أبو بكر الصديق", "عمر", "عثمان", "علي"], correct: 0 },
-    { question: "من الخليفة الذي جمع المصحف الرسمي؟", options: ["أبو بكر", "عمر", "عثمان بن عفان", "علي"], correct: 2 }
-  ],
+],
 
-  16: [
-    { question: "من النبي الذي ابتلعه الحوت؟", options: ["يوسف", "يونس عليه السلام", "أيوب", "إدريس"], correct: 1 },
-    { question: "كم عدد الأنبياء أولي العزم؟", options: ["3", "4", "5", "6"], correct: 2 },
-    { question: "من النبي الذي كلمه الله؟", options: ["إبراهيم", "موسى عليه السلام", "عيسى", "نوح"], correct: 1 },
-    { question: "من أولي العزم من الرسل؟", options: ["نوح وإبراهيم وموسى وعيسى ومحمد", "آدم ونوح", "موسى وعيسى", "محمد فقط"], correct: 0 },
-    { question: "ما اسم كتاب موسى عليه السلام؟", options: ["الإنجيل", "الزبور", "التوراة", "الصحف"], correct: 2 }
-  ],
+      14: [
+        { question: "ما أول سورة في القرآن؟", options: ["البقرة", "الفاتحة", "العلق", "يس"], correct: 1 },
+        { question: "كم عدد ركعات صلاة الفجر؟", options: ["2", "3", "4", "5"], correct: 0 },
+        { question: "ما اسم صلاة الليل في رمضان؟", options: ["الوتر", "التراويح", "الضحى", "التهجد"], correct: 1 },
+        { question: "ما أطول سورة في القرآن؟", options: ["آل عمران", "النساء", "البقرة", "المائدة"], correct: 2 },
+        { question: "ما أقصر سورة في القرآن؟", options: ["الإخلاص", "الكوثر", "الفلق", "الناس"], correct: 1 }
+      ],
 
-  17: [
-    { question: "ما اسم غزوة بدر؟", options: ["بدر", "أحد", "حنين", "الخندق"], correct: 0 },
-    { question: "في أي شهر وقعت بدر؟", options: ["شعبان", "رمضان", "شوال", "ذو القعدة"], correct: 1 },
-    { question: "في أي سنة هجرية وقع صلح الحديبية؟", options: ["5 هـ", "6 هـ", "7 هـ", "8 هـ"], correct: 1 },
-    { question: "في أي سنة هجرية وقع فتح مكة؟", options: ["6 هـ", "7 هـ", "8 هـ", "9 هـ"], correct: 2 },
-    { question: "من قائد المسلمين في بدر؟", options: ["أبو بكر", "عمر", "النبي ﷺ", "علي"], correct: 2 }
-  ],
+      // ✅ يوم 15 (25 سؤال)
+      15: [
+        { question: "من أول مؤذن في الإسلام؟", options: ["بلال بن رباح", "عمار", "سلمان", "ابن مسعود"], correct: 0 },
+        { question: "من ثالث الخلفاء الراشدين؟", options: ["عمر", "عثمان بن عفان", "علي", "أبو بكر"], correct: 1 },
+        { question: "من رابع الخلفاء الراشدين؟", options: ["عثمان", "علي بن أبي طالب", "عمر", "أبو بكر"], correct: 1 },
+        { question: "من الخليفة الذي جمع القرآن أول مرة؟", options: ["أبو بكر الصديق", "عمر", "عثمان", "علي"], correct: 0 },
+        { question: "من الخليفة الذي جمع المصحف الرسمي؟", options: ["أبو بكر", "عمر", "عثمان بن عفان", "علي"], correct: 2 },
 
-  18: [
-    { question: "ما اسم المدينة التي ولد فيها النبي ﷺ؟", options: ["المدينة", "مكة", "الطائف", "القدس"], correct: 1 },
-    { question: "من الملك الذي نزل بالوحي؟", options: ["ميكائيل", "جبريل عليه السلام", "إسرافيل", "ملك الموت"], correct: 1 },
-    { question: "ما أول ما نزل من القرآن؟", options: ["الفاتحة", "اقرأ باسم ربك", "يس", "المدثر"], correct: 1 },
-    { question: "ما اسم الغار الذي نزل فيه الوحي؟", options: ["ثور", "حراء", "أحد", "قباء"], correct: 1 },
-    { question: "ما اسم عام ولادة النبي ﷺ؟", options: ["عام الفيل", "عام الحزن", "عام بدر", "عام الهجرة"], correct: 0 }
-  ],
+        { question: "كم عدد الصلوات المفروضة يوميًا؟", options: ["3", "4", "5", "6"], correct: 2 },
+        { question: "كم عدد ركعات صلاة المغرب؟", options: ["2", "3", "4", "5"], correct: 1 },
+        { question: "ما اسم القبلة الأولى للمسلمين؟", options: ["الكعبة", "المسجد الأقصى", "المسجد النبوي", "مسجد قباء"], correct: 1 },
+        { question: "ما السورة التي تسمى قلب القرآن؟", options: ["البقرة", "يس", "الكهف", "الرحمن"], correct: 1 },
+        { question: "كم عدد أجزاء القرآن الكريم؟", options: ["20", "25", "30", "40"], correct: 2 },
 
-  19: [
-    { question: "ما اسم ابنة النبي ﷺ؟", options: ["عائشة", "فاطمة", "حفصة", "زينب"], correct: 1 },
-    { question: "ما اسم ابن النبي ﷺ؟", options: ["الحسن", "الحسين", "إبراهيم", "عبد الله"], correct: 2 },
-    { question: "من الخليفة الذي استشهد وهو يصلي الفجر؟", options: ["عثمان", "عمر بن الخطاب", "علي", "أبو بكر"], correct: 1 },
-    { question: "كم عدد الخلفاء الراشدين؟", options: ["3", "4", "5", "6"], correct: 1 },
-    { question: "من الخليفة الذي جمع المصحف الرسمي؟", options: ["أبو بكر", "عمر", "عثمان بن عفان", "علي"], correct: 2 }
-  ],
+        { question: "أين نزل الوحي أول مرة على النبي ﷺ؟", options: ["المسجد الحرام", "غار حراء", "غار ثور", "بيت المقدس"], correct: 1 },
+        { question: "ما اسم الليلة التي نزل فيها القرآن؟", options: ["ليلة القدر", "ليلة الجمعة", "ليلة العيد", "ليلة النصف"], correct: 0 },
+        { question: "ما آخر سورة في القرآن؟", options: ["الفلق", "الإخلاص", "الناس", "الكوثر"], correct: 2 },
+        { question: "ما أول سورة في المصحف؟", options: ["الفاتحة", "البقرة", "العلق", "يس"], correct: 0 },
+        { question: "كم عدد سور القرآن؟", options: ["110", "112", "114", "116"], correct: 2 },
 
-  20: [
-    { question: "ما آخر سورة في القرآن؟", options: ["الفلق", "الإخلاص", "الناس", "الكوثر"], correct: 2 },
-    { question: "كم عدد آيات القرآن تقريبًا؟", options: ["6000", "6236", "6500", "7000"], correct: 1 },
-    { question: "ما أطول سورة في القرآن؟", options: ["آل عمران", "البقرة", "النساء", "المائدة"], correct: 1 },
-    { question: "كم عدد أجزاء القرآن؟", options: ["20", "25", "30", "40"], correct: 2 },
-    { question: "ما أول سورة في المصحف؟", options: ["البقرة", "الفاتحة", "العلق", "يس"], correct: 1 }
-  ]
+        { question: "من أول الخلفاء الراشدين؟", options: ["عمر", "عثمان", "علي", "أبو بكر"], correct: 3 },
+        { question: "من ثاني الخلفاء الراشدين؟", options: ["عثمان", "عمر", "علي", "أبو بكر"], correct: 1 },
+        { question: "أي خليفة لُقب بالفاروق؟", options: ["أبو بكر", "عمر", "عثمان", "علي"], correct: 1 },
+        { question: "من لُقب بذو النورين؟", options: ["عثمان", "عمر", "علي", "أبو بكر"], correct: 0 },
+        { question: "من أول من أسلم من الصبيان؟", options: ["علي بن أبي طالب", "عمر", "عثمان", "أبو هريرة"], correct: 0 },
 
-};
+        { question: "كم مرة ذُكر اسم رمضان في القرآن؟", options: ["مرة", "مرتين", "3 مرات", "4 مرات"], correct: 0 },
+        { question: "في أي سنة فُرض صيام رمضان؟", options: ["1 هـ", "2 هـ", "3 هـ", "4 هـ"], correct: 1 },
+        { question: "في أي شهر وقعت غزوة بدر؟", options: ["رمضان", "شعبان", "شوال", "ذو القعدة"], correct: 0 },
+        { question: "كم كان عدد المسلمين في بدر تقريبًا؟", options: ["200", "313", "500", "700"], correct: 1 },
+        { question: "ما اسم صلح كان سببًا مباشرًا لفتح مكة؟", options: ["الحديبية", "بدر", "تبوك", "الطائف"], correct: 0 }
+      ],
 
+      // ✅ يوم 16 (25 سؤال)
+      16: [
+        { question: "من النبي الذي ابتلعه الحوت؟", options: ["يوسف", "يونس عليه السلام", "أيوب", "إدريس"], correct: 1 },
+        { question: "كم عدد الأنبياء أولي العزم؟", options: ["3", "4", "5", "6"], correct: 2 },
+        { question: "من النبي الذي كلمه الله؟", options: ["إبراهيم", "موسى عليه السلام", "عيسى", "نوح"], correct: 1 },
+        { question: "من أولي العزم من الرسل؟", options: ["نوح وإبراهيم وموسى وعيسى ومحمد", "آدم ونوح", "موسى وعيسى", "محمد فقط"], correct: 0 },
+        { question: "ما اسم كتاب موسى عليه السلام؟", options: ["الإنجيل", "الزبور", "التوراة", "الصحف"], correct: 2 },
 
+        { question: "من هو أبو الأنبياء؟", options: ["آدم", "إبراهيم", "نوح", "موسى"], correct: 1 },
+        { question: "من النبي الذي بُعث لقوم عاد؟", options: ["هود", "صالح", "شعيب", "لوط"], correct: 0 },
+        { question: "من النبي الذي بُعث لقوم ثمود؟", options: ["هود", "صالح", "إسماعيل", "إسحاق"], correct: 1 },
+        { question: "من النبي الذي أُرسل إلى مدين؟", options: ["شعيب", "لوط", "يوسف", "يونس"], correct: 0 },
+        { question: "ما اسم نبي الله الذي بنى السفينة؟", options: ["إبراهيم", "نوح", "موسى", "عيسى"], correct: 1 },
 
-      
+        { question: "ما معجزة موسى عليه السلام المشهورة؟", options: ["إحياء الموتى", "العصا", "الناقة", "شق القمر"], correct: 1 },
+        { question: "من النبي الذي أُعطي الزبور؟", options: ["موسى", "داود", "سليمان", "عيسى"], correct: 1 },
+        { question: "من النبي الذي أُعطي الإنجيل؟", options: ["موسى", "داود", "عيسى", "إبراهيم"], correct: 2 },
+        { question: "من النبي الذي ابتُلي بالمرض الطويل؟", options: ["أيوب", "يوسف", "نوح", "إدريس"], correct: 0 },
+        { question: "من النبي الذي رأى رؤيا الكواكب؟", options: ["يوسف", "إبراهيم", "سليمان", "داود"], correct: 0 },
 
+        { question: "من الذي ألقاه إخوته في البئر؟", options: ["موسى", "يوسف", "إسماعيل", "إسحاق"], correct: 1 },
+        { question: "من النبي الذي فدى الله ابنه بذبح عظيم؟", options: ["إبراهيم", "نوح", "داود", "يونس"], correct: 0 },
+        { question: "ما اسم ابن إبراهيم الذي أُمر بذبحه؟", options: ["إسحاق", "إسماعيل", "يعقوب", "يوسف"], correct: 1 },
+        { question: "من النبي الذي سخر الله له الريح؟", options: ["داود", "سليمان", "موسى", "عيسى"], correct: 1 },
+        { question: "من النبي الذي أُعطي ملكًا لا ينبغي لأحد من بعده؟", options: ["داود", "سليمان", "إبراهيم", "يوسف"], correct: 1 },
 
-      
+        { question: "من النبي الذي أُسري به ليلاً؟", options: ["محمد ﷺ", "موسى", "عيسى", "إبراهيم"], correct: 0 },
+        { question: "من الملك الذي نزل بالوحي؟", options: ["ميكائيل", "جبريل", "إسرافيل", "ملك الموت"], correct: 1 },
+        { question: "كم عدد أركان الإيمان؟", options: ["4", "5", "6", "7"], correct: 2 },
+        { question: "ما الركن الأول من أركان الإسلام؟", options: ["الصلاة", "الزكاة", "الشهادتان", "الصيام"], correct: 2 },
+        { question: "في أي عشر تُلتمس ليلة القدر؟", options: ["الأولى", "الأوسط", "الأواخر", "كل الشهر"], correct: 2 }
+      ],
+
+      17: [
+        { question: "ما اسم غزوة بدر؟", options: ["بدر", "أحد", "حنين", "الخندق"], correct: 0 },
+        { question: "في أي شهر وقعت بدر؟", options: ["شعبان", "رمضان", "شوال", "ذو القعدة"], correct: 1 },
+        { question: "في أي سنة هجرية وقع صلح الحديبية؟", options: ["5 هـ", "6 هـ", "7 هـ", "8 هـ"], correct: 1 },
+        { question: "في أي سنة هجرية وقع فتح مكة؟", options: ["6 هـ", "7 هـ", "8 هـ", "9 هـ"], correct: 2 },
+        { question: "من قائد المسلمين في بدر؟", options: ["أبو بكر", "عمر", "النبي ﷺ", "علي"], correct: 2 }
+      ],
+
+      18: [
+        { question: "ما اسم المدينة التي ولد فيها النبي ﷺ؟", options: ["المدينة", "مكة", "الطائف", "القدس"], correct: 1 },
+        { question: "من الملك الذي نزل بالوحي؟", options: ["ميكائيل", "جبريل عليه السلام", "إسرافيل", "ملك الموت"], correct: 1 },
+        { question: "ما أول ما نزل من القرآن؟", options: ["الفاتحة", "اقرأ باسم ربك", "يس", "المدثر"], correct: 1 },
+        { question: "ما اسم الغار الذي نزل فيه الوحي؟", options: ["ثور", "حراء", "أحد", "قباء"], correct: 1 },
+        { question: "ما اسم عام ولادة النبي ﷺ؟", options: ["عام الفيل", "عام الحزن", "عام بدر", "عام الهجرة"], correct: 0 }
+      ],
+
+      19: [
+        { question: "ما اسم ابنة النبي ﷺ؟", options: ["عائشة", "فاطمة", "حفصة", "زينب"], correct: 1 },
+        { question: "ما اسم ابن النبي ﷺ؟", options: ["الحسن", "الحسين", "إبراهيم", "عبد الله"], correct: 2 },
+        { question: "من الخليفة الذي استشهد وهو يصلي الفجر؟", options: ["عثمان", "عمر بن الخطاب", "علي", "أبو بكر"], correct: 1 },
+        { question: "كم عدد الخلفاء الراشدين؟", options: ["3", "4", "5", "6"], correct: 1 },
+        { question: "من الخليفة الذي جمع المصحف الرسمي؟", options: ["أبو بكر", "عمر", "عثمان بن عفان", "علي"], correct: 2 }
+      ],
+
+      20: [
+        { question: "ما آخر سورة في القرآن؟", options: ["الفلق", "الإخلاص", "الناس", "الكوثر"], correct: 2 },
+        { question: "كم عدد آيات القرآن تقريبًا؟", options: ["6000", "6236", "6500", "7000"], correct: 1 },
+        { question: "ما أطول سورة في القرآن؟", options: ["آل عمران", "البقرة", "النساء", "المائدة"], correct: 1 },
+        { question: "كم عدد أجزاء القرآن؟", options: ["20", "25", "30", "40"], correct: 2 },
+        { question: "ما أول سورة في المصحف؟", options: ["البقرة", "الفاتحة", "العلق", "يس"], correct: 1 }
+      ]
+    };
+
+    // ==========================
     // حالة اللعبة
     // ==========================
     const gameState = {
       playerName: "",
-      playerEmail: "",
+      playerPhone: "",          // ✅ رقم الجوال
       deviceId: "",
       currentQuestion: 0,
       score: 0,
@@ -393,8 +492,8 @@
       totalTime: 0,
       isAnswered: false,
       correctAnswers: [],
-      matchId: null,            // ✅ جديد: ID للمباراة
-      matchDocPath: null        // ✅ جديد: مسار الوثيقة
+      matchId: null,
+      matchDocPath: null
     };
 
     // ==========================
@@ -407,7 +506,7 @@
       thankYouScreen: document.getElementById('thank-you-screen'),
       countdownScreen: document.getElementById('countdown-screen'),
       playerNameInput: document.getElementById('player-name'),
-      playerEmailInput: document.getElementById('player-email'),
+      playerPhoneInput: document.getElementById('player-phone'), // ✅
       startButton: document.getElementById('start-button'),
       playerWelcome: document.getElementById('player-welcome'),
       questionCounter: document.getElementById('question-counter'),
@@ -424,10 +523,10 @@
     // إعدادات المسابقة
     // ==========================
     const QUIZ_MODE = "auto";
-    const QUIZ_START_HOUR = 19;
+    const QUIZ_START_HOUR = 00;
     const QUIZ_START_MINUTE = 0;
-    const QUIZ_END_HOUR = 20;
-    const QUIZ_END_MINUTE = 0;
+    const QUIZ_END_HOUR = 2;
+    const QUIZ_END_MINUTE = 59;
 
     // ==========================
     // أدوات مساعدة
@@ -476,8 +575,7 @@
 
       return { questions: processedQuestions, correctAnswers };
     }
-
-    function checkQuizTimeStatus() {
+function checkQuizTimeStatus() {
       if (QUIZ_MODE === "always") {
         return { isAvailable: true, message: "المسابقة متاحة الآن! (وضع الاختبار)", status: "available" };
       } else if (QUIZ_MODE === "never") {
@@ -556,7 +654,8 @@
       }
     }
 
-    function recordLocalParticipation(playerName, playerEmail) {
+    // ✅ تعديل: حفظ رقم الجوال محليًا
+    function recordLocalParticipation(playerName, playerPhone) {
       try {
         const today = getTodayFormatted();
         localStorage.setItem('participationDate', today);
@@ -565,7 +664,7 @@
           date: today,
           timestamp: new Date().toISOString(),
           playerName: playerName,
-          playerEmail: playerEmail || ''
+          playerPhone: playerPhone || ''
         };
 
         localStorage.setItem('participationInfo', JSON.stringify(participationInfo));
@@ -606,13 +705,13 @@
       }
     }
 
-    // ✅ جديد: إنشاء مباراة عند البداية
+    // ✅ إنشاء مباراة عند البداية
     async function createMatchDoc() {
       try {
         const docRef = await db.collection('matches').add({
           deviceId: gameState.deviceId,
           playerName: gameState.playerName,
-          playerEmail: gameState.playerEmail || '',
+          playerPhone: gameState.playerPhone || '',
           participationDate: getTodayFormatted(),
           startedAt: firebase.firestore.FieldValue.serverTimestamp(),
           status: "started"
@@ -626,7 +725,7 @@
       }
     }
 
-    // ✅ جديد: تحديث المباراة عند النهاية
+    // ✅ تحديث المباراة عند النهاية
     async function finishMatchDoc(finalPayload) {
       try {
         if (!gameState.matchId) return false;
@@ -779,7 +878,6 @@
       handleAnswer(-1);
     }
 
-    // ✅ تم ترتيب الحفظ: تحديث match + إضافة score (كما كان عندك)
     async function showResults() {
       try {
         elements.quizScreen.classList.add('hidden');
@@ -792,23 +890,22 @@
           participationDate: getTodayFormatted(),
         };
 
-        // 1) تحديث المباراة (حتى لو scores فشلت)
         await finishMatchDoc(finalPayload);
 
-        // 2) حفظ النتيجة في scores (كما كان)
+        // حفظ النتيجة في scores
         const playerData = {
-          playerName: gameState.playerName,
-          playerEmail: gameState.playerEmail || '',
-          deviceId: gameState.deviceId,
-          score: gameState.score,
-          totalTime: gameState.totalTime,
-          participationDate: getTodayFormatted(),
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          matchId: gameState.matchId || null
-        };
+  playerName: gameState.playerName,
+  playerPhone: gameState.playerPhone || '', // ✅ مهم
+  deviceId: gameState.deviceId,
+  score: gameState.score,
+  totalTime: gameState.totalTime,
+  answers: gameState.answers,
+  participationDate: getTodayFormatted(),
+  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+  matchId: gameState.matchId || null
+};
         await db.collection('scores').add(playerData);
 
-        // ✅ منع تكرار addEventListener: نستخدم onclick
         const btn = document.getElementById('show-results-button');
         btn.onclick = () => {
           elements.thankYouScreen.classList.add('hidden');
@@ -846,9 +943,6 @@
       }
     }
 
-    // ==========================
-    // تهيئة المسابقة
-    // ==========================
     async function initializeQuiz() {
       try {
         if (!db) {
@@ -885,14 +979,23 @@
       }
     }
 
-    // ✅ أهم إصلاح: لا تسجل participation إلا بعد التأكد من وجود أسئلة لليوم
+    // ✅ لا تسجل مشاركة إلا بعد التأكد + التحقق من رقم الجوال
     async function startQuiz() {
       try {
         elements.startScreen.classList.add('hidden');
         elements.loadingScreen.classList.remove('hidden');
 
         gameState.playerName = elements.playerNameInput.value.trim();
-        gameState.playerEmail = elements.playerEmailInput.value.trim();
+        gameState.playerPhone = elements.playerPhoneInput.value.trim();
+
+        // ✅ تحقق رقم الجوال: يبدأ بـ 05 وطوله 10
+        const phoneRegex = /^05\d{8}$/;
+        if (!phoneRegex.test(gameState.playerPhone)) {
+          elements.loadingScreen.classList.add('hidden');
+          alert('الرجاء إدخال رقم جوال صحيح يبدأ بـ 05 ويتكون من 10 خانات');
+          elements.startScreen.classList.remove('hidden');
+          return;
+        }
 
         const hasParticipated = await checkFirestoreParticipation(gameState.deviceId);
         if (hasParticipated) {
@@ -927,12 +1030,12 @@
           return;
         }
 
-        // ✅ الآن فقط: تسجيل المشاركة (محلي + فايرستور)
-        recordLocalParticipation(gameState.playerName, gameState.playerEmail);
+        // ✅ تسجيل المشاركة (محلي + فايرستور)
+        recordLocalParticipation(gameState.playerName, gameState.playerPhone);
 
         const participationData = {
           playerName: gameState.playerName,
-          playerEmail: gameState.playerEmail || '',
+          playerPhone: gameState.playerPhone || '',
           deviceId: gameState.deviceId,
           participationDate: getTodayFormatted()
         };
@@ -945,35 +1048,61 @@
           return;
         }
 
-        // ✅ إنشاء مباراة عند البداية (لتجنب فقدان أي مباراة)
+        // إنشاء مباراة
         const matchOk = await createMatchDoc();
         if (!matchOk) {
-          // نكمل اللعبة حتى لو فشل match (لكن الأفضل تعالج Rules/Net)
           console.warn("لم يتم إنشاء match، سيتم الاعتماد على scores فقط.");
         }
 
-        // خلط الأسئلة والخيارات
-        const originalQuestions = [...ramadanQuestions[questionDay]];
-        const shuffledData = shuffleQuestions(originalQuestions);
+        // ✅ تعديل 2: اختيار 5 أسئلة عشوائية من بنك 25 (أو أكثر)
+     // ===== توزيع ذكي للأسئلة حسب الجهاز =====
+function seededRandom(seed) {
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
 
-        gameState.questions = shuffledData.questions;
-        gameState.correctAnswers = shuffledData.correctAnswers;
+function getSeededQuestions(allQuestions, deviceId) {
+  // تحويل deviceId إلى رقم ثابت
+  const seed = deviceId.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
 
-        elements.loadingScreen.classList.add('hidden');
-        elements.playerWelcome.textContent = `مرحباً ${gameState.playerName}!`;
+  // ترتيب ثابت لكن مختلف لكل جهاز
+  const shuffled = [...allQuestions].sort((a, b) =>
+    seededRandom(seed + a.question.length) - 0.5
+  );
 
-        startCountdown();
-      } catch (error) {
-        console.error('Error starting quiz:', error);
-        elements.loadingScreen.classList.add('hidden');
-        alert('حدث خطأ في بدء المسابقة. يرجى المحاولة مرة أخرى.');
-        elements.startScreen.classList.remove('hidden');
-      }
-    }
+  return shuffled.slice(0, 5);
+}
 
-    function validatePlayerName() {
+// ===== استبدال السطر القديم =====
+const originalQuestions = getSeededQuestions(
+  ramadanQuestions[questionDay],
+  gameState.deviceId
+);
+
+const shuffledData = shuffleQuestions(originalQuestions);
+
+gameState.questions = shuffledData.questions;
+gameState.correctAnswers = shuffledData.correctAnswers;
+
+elements.loadingScreen.classList.add('hidden');
+elements.playerWelcome.textContent = `مرحباً ${gameState.playerName}!`;
+
+startCountdown();
+
+} catch (error) {
+  console.error('Error starting quiz:', error);
+  elements.loadingScreen.classList.add('hidden');
+  alert('حدث خطأ أثناء بدء المسابقة');
+}
+}       
+
+    // ✅ تفعيل زر البدء يعتمد على الاسم + رقم الجوال الصحيح
+    function validatePlayerInputs() {
       const playerName = elements.playerNameInput.value.trim();
-      if (playerName.length >= 3) {
+      const phone = elements.playerPhoneInput.value.trim();
+      const phoneRegex = /^05\d{8}$/;
+
+      if (playerName.length >= 3 && phoneRegex.test(phone)) {
         elements.startButton.disabled = false;
         elements.startButton.classList.remove('opacity-50', 'cursor-not-allowed');
       } else {
@@ -982,10 +1111,21 @@
       }
     }
 
+    // ✅ تحسين: منع إدخال غير أرقام في الجوال
+    function sanitizePhoneInput() {
+      let v = elements.playerPhoneInput.value || '';
+      v = v.replace(/\D/g, '').slice(0, 10);
+      elements.playerPhoneInput.value = v;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       try {
         lucide.createIcons();
-        elements.playerNameInput.addEventListener('input', validatePlayerName);
+        elements.playerNameInput.addEventListener('input', validatePlayerInputs);
+        elements.playerPhoneInput.addEventListener('input', () => {
+          sanitizePhoneInput();
+          validatePlayerInputs();
+        });
         elements.startButton.addEventListener('click', startQuiz);
         initializeQuiz();
       } catch (error) {
