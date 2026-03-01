@@ -10,11 +10,13 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+  <!-- مكتبة Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
     *{font-family:'Cairo',sans-serif}
 
-    /* تأثير احترافي لمن يجمع (الأول + أسرع إجابة) */
     @keyframes winnerGlow {
       0% { box-shadow: 0 0 0 rgba(255,215,0,0.0); transform: scale(1.08); }
       50% { box-shadow: 0 0 28px rgba(255,215,0,0.65); transform: scale(1.11); }
@@ -22,14 +24,12 @@
     }
     .winner-effect { animation: winnerGlow 2s infinite; }
 
-    /* نفس إحساس كروت الصورة */
     .card-base{
       background: rgba(255,255,255,0.06);
       backdrop-filter: blur(14px);
       border-radius: 18px;
     }
 
-    /* العنوان مثل الصورة */
     .title-main{
       letter-spacing: .5px;
       text-shadow: 0 6px 18px rgba(0,0,0,.25);
@@ -39,7 +39,7 @@
 
 <body class="bg-gradient-to-b from-blue-900 to-indigo-950 min-h-screen text-white">
 
-  <!-- شريط اليوم والتاريخ (أعلى الصفحة مثل الكود الأساسي) -->
+  <!-- شريط اليوم والتاريخ -->
   <div class="bg-white/5 border-b border-white/10 p-3">
     <div class="max-w-5xl mx-auto flex justify-between items-center">
       <span id="day-name" class="text-blue-400"></span>
@@ -47,7 +47,15 @@
     </div>
   </div>
 
-  <!-- ✅ شاشة الإغلاق حتى 8 مساءً -->
+  <!-- زر لوحة التحكم (جديد) -->
+  <div class="text-center mt-4">
+    <button id="admin-btn"
+      class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl">
+      لوحة التحكم وتصدير النتائج
+    </button>
+  </div>
+
+  <!-- شاشة الإغلاق -->
   <div id="waiting-screen" class="hidden p-6 max-w-5xl mx-auto">
     <div class="flex items-center justify-center min-h-[70vh]">
       <div class="card-base border-2 border-yellow-400/30 p-10 text-center max-w-md w-full">
@@ -55,40 +63,35 @@
         <h2 class="text-2xl font-bold text-yellow-400 mb-2">النتائج قيد التحديث</h2>
         <p class="text-gray-300 mb-6">سيتم نشر نتائج اليوم في تمام الساعة 8 مساءً</p>
         <button onclick="location.href='ramadan.html'"
-          class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-6 py-3 rounded-xl">
+          class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 rounded-xl">
           العودة لصفحة المسابقة
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ✅ شاشة النتائج -->
+  <!-- شاشة النتائج -->
   <div id="results-screen" class="hidden p-6 max-w-5xl mx-auto">
 
-    <!-- عنوان نتائج مسابقة اليوم + التاريخ تحتها (مثل الصورة) -->
     <div class="text-center mb-6">
       <h1 class="title-main text-3xl md:text-4xl font-extrabold text-yellow-400 mb-2">نتائج مسابقة اليوم</h1>
       <div id="results-date" class="text-green-300 font-semibold"></div>
     </div>
 
-    <!-- عدد المشاركين -->
     <div class="text-center text-green-400 font-bold mb-6">
       عدد المشاركين اليوم: <span id="participants-count">0</span>
     </div>
 
-    <!-- ترتيب الكروت مثل الصورة: الثالث يسار - الأول وسط - الثاني يمين -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 items-stretch">
 
-      <!-- المركز الثالث (يسار بالصورة) -->
       <div class="md:order-1">
         <div id="third-card" class="card-base border-2 border-white/25 p-6 text-center">
           <i data-lucide="trophy" class="w-12 h-12 mx-auto text-orange-400 mb-2"></i>
-          <div class="font-bold text-xl text-black/80 bg-white/0">المركز الثالث</div>
+          <div class="font-bold text-xl">المركز الثالث</div>
           <div id="third-place" class="mt-3"></div>
         </div>
       </div>
 
-      <!-- المركز الأول (وسط بالصورة + أكبر) -->
       <div class="md:order-2">
         <div id="first-card" class="card-base border-2 border-yellow-400/35 p-8 text-center md:scale-110">
           <i data-lucide="trophy" class="w-16 h-16 mx-auto text-yellow-400 mb-2"></i>
@@ -97,28 +100,26 @@
         </div>
       </div>
 
-      <!-- المركز الثاني (يمين بالصورة) -->
       <div class="md:order-3">
         <div id="second-card" class="card-base border-2 border-white/25 p-6 text-center">
           <i data-lucide="trophy" class="w-12 h-12 mx-auto text-gray-300 mb-2"></i>
-          <div class="font-bold text-xl text-black/80 bg-white/0">المركز الثاني</div>
+          <div class="font-bold text-xl">المركز الثاني</div>
           <div id="second-place" class="mt-3"></div>
         </div>
       </div>
 
     </div>
 
-    <!-- جدول جميع النتائج -->
     <div class="bg-white/10 rounded-2xl p-6">
       <h3 class="text-green-400 font-bold mb-4">جميع النتائج</h3>
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
             <tr class="border-b border-green-400/20">
-              <th class="p-3 text-right">المركز</th>
-              <th class="p-3 text-right">الاسم</th>
-              <th class="p-3 text-right">النقاط</th>
-              <th class="p-3 text-right">الوقت</th>
+              <th class="p-3">المركز</th>
+              <th class="p-3">الاسم</th>
+              <th class="p-3">النقاط</th>
+              <th class="p-3">الوقت</th>
             </tr>
           </thead>
           <tbody id="results-table"></tbody>
@@ -126,10 +127,9 @@
       </div>
     </div>
 
-    <!-- زر العودة -->
     <div class="text-center mt-8">
       <button onclick="location.href='ramadan.html'"
-        class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-8 py-3 rounded-xl">
+        class="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 rounded-xl">
         العودة لصفحة المسابقة
       </button>
     </div>
@@ -137,152 +137,144 @@
   </div>
 
 <script>
-  // Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyC5RYK1lGaJaMQJmOH85cqNgv6m7rbLS_A",
-    authDomain: "ramadanmotaz-5570f.firebaseapp.com",
-    projectId: "ramadanmotaz-5570f"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyC5RYK1lGaJaMQJmOH85cqNgv6m7rbLS_A",
+  authDomain: "ramadanmotaz-5570f.firebaseapp.com",
+  projectId: "ramadanmotaz-5570f"
+};
 
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  // شريط اليوم/التاريخ العلوي
-  function updateDateBar(){
-    const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-    const now=new Date();
-    document.getElementById('day-name').textContent=days[now.getDay()];
-    document.getElementById('current-date').textContent=now.toLocaleDateString('ar-SA');
+function updateDateBar(){
+  const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const now=new Date();
+  document.getElementById('day-name').textContent=days[now.getDay()];
+  document.getElementById('current-date').textContent=now.toLocaleDateString('ar-SA');
+}
+
+function getTodayKey(){
+  const n=new Date();
+  const d=String(n.getDate()).padStart(2,'0');
+  const m=String(n.getMonth()+1).padStart(2,'0');
+  const y=n.getFullYear();
+  return `${d}-${m}-${y}`;
+}
+
+function setResultsTitleDate(){
+  const now=new Date();
+  document.getElementById('results-date').textContent=`نتائج ${now.toLocaleDateString('ar-SA')}`;
+}
+
+function safeNum(x,f=0){const n=Number(x);return Number.isFinite(n)?n:f;}
+
+function placeHTML(p,isFast){
+  return `
+  <div class="font-bold text-lg">${p.playerName||''}</div>
+  <div class="text-yellow-300 font-semibold">${p.score??0} نقطة</div>
+  <div class="opacity-75">${safeNum(p.totalTime,0).toFixed(2)} ثانية</div>
+  ${isFast?`<div class="text-yellow-200 text-sm mt-2">🔥 أسرع إجابة اليوم</div>`:''}`;
+}
+
+async function fetchResults(){
+  const today=getTodayKey();
+  const snap=await db.collection('scores')
+    .where('participationDate','==',today)
+    .orderBy('score','desc')
+    .orderBy('totalTime','asc')
+    .get();
+
+  const results=[];
+  snap.forEach(d=>results.push(d.data()||{}));
+  document.getElementById('participants-count').textContent=results.length;
+
+  if(results.length===0){
+    document.getElementById('first-place').innerHTML=`لا توجد نتائج`;
+    return;
   }
 
-  // نفس تنسيق index.html (DD-MM-YYYY)
-  function getTodayKey(){
-    const n=new Date();
-    const d=String(n.getDate()).padStart(2,'0');
-    const m=String(n.getMonth()+1).padStart(2,'0');
-    const y=n.getFullYear();
-    return `${d}-${m}-${y}`;
+  const top3=results.slice(0,3);
+  const fastest=top3.reduce((a,b)=> safeNum(a.totalTime,9999)<safeNum(b.totalTime,9999)?a:b);
+
+  if(top3[0]){
+    const isFast=safeNum(top3[0].totalTime)===safeNum(fastest.totalTime);
+    document.getElementById('first-place').innerHTML=placeHTML(top3[0],isFast);
+    if(isFast)document.getElementById('first-card').classList.add('winner-effect');
+  }
+  if(top3[1]){
+    const isFast=safeNum(top3[1].totalTime)===safeNum(fastest.totalTime);
+    document.getElementById('second-place').innerHTML=placeHTML(top3[1],isFast);
+  }
+  if(top3[2]){
+    const isFast=safeNum(top3[2].totalTime)===safeNum(fastest.totalTime);
+    document.getElementById('third-place').innerHTML=placeHTML(top3[2],isFast);
   }
 
-  // تاريخ العنوان تحت "نتائج مسابقة اليوم"
-  function setResultsTitleDate(){
-    const now=new Date();
-    const hijriLike = now.toLocaleDateString('ar-SA');
-    document.getElementById('results-date').textContent = `نتائج ${hijriLike}`;
-  }
+  document.getElementById('results-table').innerHTML=results.map((r,i)=>`
+  <tr class="border-b border-white/10">
+  <td class="p-3">${i+1}</td>
+  <td class="p-3">${r.playerName||''}</td>
+  <td class="p-3">${r.score??0}</td>
+  <td class="p-3">${safeNum(r.totalTime,0).toFixed(2)} ثانية</td>
+  </tr>`).join('');
 
-  function safeNum(x, fallback=0){
-    const n = Number(x);
-    return Number.isFinite(n) ? n : fallback;
-  }
+  window.allResults=results;
+}
 
-  function placeHTML(p, isFastest){
-    const name = p.playerName || '';
-    const score = (p.score ?? 0);
-    const time = safeNum(p.totalTime, 0).toFixed(2);
+/* ======= تصدير Excel ======= */
+document.getElementById("admin-btn").addEventListener("click",async()=>{
+  const pass=prompt("ادخل كلمة المرور");
+  if(pass!=="100889٪"){alert("كلمة المرور غير صحيحة");return;}
 
-    return `
-      <div class="font-bold text-lg">${name}</div>
-      <div class="text-yellow-300 font-semibold">${score} نقطة</div>
-      <div class="opacity-75">${time} ثانية</div>
-      ${isFastest ? `<div class="text-yellow-200 text-sm mt-2">🔥 أسرع إجابة اليوم</div>` : ``}
-    `;
-  }
+  const results=window.allResults||[];
+  if(results.length===0){alert("لا يوجد بيانات");return;}
 
-  async function fetchResults(){
-    const today = getTodayKey();
+  const fastest=results.reduce((a,b)=> safeNum(a.totalTime,9999)<safeNum(b.totalTime,9999)?a:b);
 
-    const snap = await db.collection('scores')
-      .where('participationDate','==',today)
-      .orderBy('score','desc')
-      .orderBy('totalTime','asc')
-      .get();
+  const data=results.map((r,i)=>{
+    let note="";
+    if(i===0)note+="المركز الأول ";
+    if(i===1)note+="المركز الثاني ";
+    if(i===2)note+="المركز الثالث ";
+    if(safeNum(r.totalTime)===safeNum(fastest.totalTime))note+="أسرع إجابة";
 
-    const results=[];
-    snap.forEach(d=> results.push(d.data()||{}));
+    let row={
+      ترتيب:i+1,
+      الاسم:r.playerName,
+      الجوال:r.playerPhone||'',
+      النقاط:r.score,
+      الوقت:r.totalTime
+    };
 
-    // عداد المشاركين
-    document.getElementById('participants-count').textContent = results.length;
+    (r.answers||[]).forEach((a,idx)=>{
+      row[`س${idx+1} نتيجة`]=a.isCorrect?"صح":"خطأ";
+      row[`س${idx+1} زمن`]=a.time;
+    });
 
-    // لا توجد نتائج
-    if(results.length === 0){
-      document.getElementById('first-place').innerHTML = `<div class="opacity-80">لا توجد نتائج لليوم بعد</div>`;
-      document.getElementById('second-place').innerHTML = `<div class="opacity-80">—</div>`;
-      document.getElementById('third-place').innerHTML  = `<div class="opacity-80">—</div>`;
-      document.getElementById('results-table').innerHTML = `
-        <tr class="border-b border-white/10">
-          <td class="p-3" colspan="4">لا توجد نتائج لليوم حتى الآن.</td>
-        </tr>`;
-      return;
-    }
-
-    // Top 3
-    const top3 = results.slice(0,3);
-
-    // أسرع إجابة ضمن الثلاثة فقط
-    const fastest = top3.reduce((a,b)=> safeNum(a.totalTime,999999) < safeNum(b.totalTime,999999) ? a : b);
-
-    // تعبئة المراكز
-    if(top3[0]){
-      const isFast = (top3[0].playerName === fastest.playerName) && (safeNum(top3[0].totalTime) === safeNum(fastest.totalTime));
-      document.getElementById('first-place').innerHTML = placeHTML(top3[0], isFast);
-
-      // إذا الأول هو الأسرع -> تأثير احترافي على كرت الأول
-      const firstCard = document.getElementById('first-card');
-      if(isFast) firstCard.classList.add('winner-effect');
-      else firstCard.classList.remove('winner-effect');
-    }
-
-    if(top3[1]){
-      const isFast = (top3[1].playerName === fastest.playerName) && (safeNum(top3[1].totalTime) === safeNum(fastest.totalTime));
-      document.getElementById('second-place').innerHTML = placeHTML(top3[1], isFast);
-    } else {
-      document.getElementById('second-place').innerHTML = `<div class="opacity-80">—</div>`;
-    }
-
-    if(top3[2]){
-      const isFast = (top3[2].playerName === fastest.playerName) && (safeNum(top3[2].totalTime) === safeNum(fastest.totalTime));
-      document.getElementById('third-place').innerHTML = placeHTML(top3[2], isFast);
-    } else {
-      document.getElementById('third-place').innerHTML = `<div class="opacity-80">—</div>`;
-    }
-
-    // جدول جميع النتائج
-    document.getElementById('results-table').innerHTML = results.map((r,i)=>`
-      <tr class="border-b border-white/10">
-        <td class="p-3">${i+1}</td>
-        <td class="p-3">${r.playerName || ''}</td>
-        <td class="p-3">${r.score ?? 0}</td>
-        <td class="p-3">${safeNum(r.totalTime,0).toFixed(2)} ثانية</td>
-      </tr>
-    `).join('');
-  }
-
-  document.addEventListener('DOMContentLoaded', async ()=>{
-    updateDateBar();
-    setResultsTitleDate();
-    lucide.createIcons();
-
-    const now = new Date();
-    const hour = now.getHours();
-
-    // ✅ الخيار 2: النتائج تظهر من 8 مساءً إلى 11:59 مساءً فقط
-    if(hour >= 20 && hour < 24){
-      document.getElementById('waiting-screen').classList.add('hidden');
-      document.getElementById('results-screen').classList.remove('hidden');
-      try{
-        await fetchResults();
-      }catch(e){
-        console.error(e);
-        alert('حدث خطأ في جلب النتائج. تأكد من الاتصال والصلاحيات.');
-      }
-    } else {
-      document.getElementById('results-screen').classList.add('hidden');
-      document.getElementById('waiting-screen').classList.remove('hidden');
-      lucide.createIcons();
-    }
+    row["ملاحظة"]=note;
+    return row;
   });
+
+  const ws=XLSX.utils.json_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Results");
+  XLSX.writeFile(wb,"نتائج_المسابقة.xlsx");
+});
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  updateDateBar();
+  setResultsTitleDate();
+  lucide.createIcons();
+
+  const hour=new Date().getHours();
+  if(hour>=20){
+    document.getElementById('results-screen').classList.remove('hidden');
+    await fetchResults();
+  }else{
+    document.getElementById('waiting-screen').classList.remove('hidden');
+  }
+});
 </script>
 
 </body>
-</html> 
+</html>
