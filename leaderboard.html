@@ -266,13 +266,16 @@ document.addEventListener('DOMContentLoaded',async()=>{
   setResultsTitleDate();
   lucide.createIcons();
 
-  const hour=new Date().getHours();
-  if(hour>=1){
-    document.getElementById('results-screen').classList.remove('hidden');
-    await fetchResults();
-  }else{
-    document.getElementById('waiting-screen').classList.remove('hidden');
-  }
+  const now = new Date();
+const hour = now.getHours();
+const minute = now.getMinutes();
+
+if (hour > 1 || (hour === 1 && minute >= 26)) {
+  document.getElementById('results-screen').classList.remove('hidden');
+  await fetchResults();
+} else {
+  document.getElementById('waiting-screen').classList.remove('hidden');
+}
 });
 </script>
 
