@@ -238,13 +238,13 @@ document.getElementById("admin-btn").addEventListener("click",async()=>{
     if(i===2)note+="المركز الثالث ";
     if(safeNum(r.totalTime)===safeNum(fastest.totalTime))note+="أسرع إجابة";
 
-    let row={
-      ترتيب:i+1,
-      الاسم:r.playerName,
-      الجوال:r.playerPhone||'',
-      النقاط:r.score,
-      الوقت:r.totalTime
-    };
+    let row = {
+  ترتيب: i+1,
+  الاسم: r.playerName,
+  "رقم الجوال": r.playerPhone || '',
+  النقاط: r.score,
+  "الوقت الإجمالي": r.totalTime
+};
 
     (r.answers||[]).forEach((a,idx)=>{
       row[`س${idx+1} نتيجة`]=a.isCorrect?"صح":"خطأ";
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 const hour = now.getHours();
 const minute = now.getMinutes();
 
-if (hour > 1 || (hour === 1 && minute >= 26)) {
+if (hour > 1 || (hour === 20 && minute >= 00)) {
   document.getElementById('results-screen').classList.remove('hidden');
   await fetchResults();
 } else {
