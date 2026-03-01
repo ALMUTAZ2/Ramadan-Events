@@ -127,12 +127,19 @@
       </div>
     </div>
 
-    <div class="text-center mt-8">
-      <button onclick="location.href='ramadan.html'"
-        class="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 rounded-xl">
-        العودة لصفحة المسابقة
-      </button>
-    </div>
+<div class="text-center mt-8 flex justify-center gap-4 flex-wrap">
+
+  <button onclick="exportResults()"
+    class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl">
+    تصدير النتائج
+  </button>
+
+  <button onclick="location.href='ramadan.html'"
+    class="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 rounded-xl">
+    العودة لصفحة المسابقة
+  </button>
+
+</div>
 
   </div>
 
@@ -222,16 +229,25 @@ async function fetchResults(){
 }
 
 /* ======= تصدير Excel ======= */
-document.getElementById("admin-btn").addEventListener("click",async()=>{
-  const pass=prompt("ادخل كلمة المرور");
-  if(pass!=="100889٪"){alert("كلمة المرور غير صحيحة");return;}
+async function exportResults(){
 
-  const results=window.allResults||[];
-  if(results.length===0){alert("لا يوجد بيانات");return;}
+  const pass = prompt("ادخل كلمة المرور");
+  if(pass !== "100889٪"){
+    alert("كلمة المرور غير صحيحة");
+    return;
+  }
 
-  const fastest=results.reduce((a,b)=> safeNum(a.totalTime,9999)<safeNum(b.totalTime,9999)?a:b);
+  const results = window.allResults || [];
+  if(results.length === 0){
+    alert("لا يوجد بيانات");
+    return;
+  }
 
-  const data=results.map((r,i)=>{
+  const fastest = results.reduce((a,b)=>
+    safeNum(a.totalTime,9999) < safeNum(b.totalTime,9999) ? a : b
+  );
+
+  const data = results.map((r,i)=>{
     let note="";
     if(i===0)note+="المركز الأول ";
     if(i===1)note+="المركز الثاني ";
@@ -239,12 +255,12 @@ document.getElementById("admin-btn").addEventListener("click",async()=>{
     if(safeNum(r.totalTime)===safeNum(fastest.totalTime))note+="أسرع إجابة";
 
     let row = {
-  ترتيب: i+1,
-  الاسم: r.playerName,
-  "رقم الجوال": r.playerPhone || '',
-  النقاط: r.score,
-  "الوقت الإجمالي": r.totalTime
-};
+      ترتيب: i+1,
+      الاسم: r.playerName,
+      "رقم الجوال": r.playerPhone || '',
+      النقاط: r.score,
+      "الوقت الإجمالي": r.totalTime
+    };
 
     (r.answers||[]).forEach((a,idx)=>{
       row[`س${idx+1} نتيجة`]=a.isCorrect?"صح":"خطأ";
@@ -255,12 +271,11 @@ document.getElementById("admin-btn").addEventListener("click",async()=>{
     return row;
   });
 
-  const ws=XLSX.utils.json_to_sheet(data);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Results");
-  XLSX.writeFile(wb,"نتائج_المسابقة.xlsx");
-});
-
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Results");
+  XLSX.writeFile(wb, "نتائج_المسابقة.xlsx");
+}
 document.addEventListener('DOMContentLoaded',async()=>{
   updateDateBar();
   setResultsTitleDate();
@@ -270,7 +285,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 const hour = now.getHours();
 const minute = now.getMinutes();
 
-if (hour > 1 || (hour === 20 && minute >= 00)) {
+if (hour > 20 || (hour === 20 && minute >= 0)) {
   document.getElementById('results-screen').classList.remove('hidden');
   await fetchResults();
 } else {
