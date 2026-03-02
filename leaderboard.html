@@ -47,13 +47,7 @@
     </div>
   </div>
 
-  <!-- زر لوحة التحكم (جديد) -->
-  <div class="text-center mt-4">
-    <button id="admin-btn"
-      class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl">
-      لوحة التحكم وتصدير النتائج
-    </button>
-  </div>
+ 
 
   <!-- شاشة الإغلاق -->
   <div id="waiting-screen" class="hidden p-6 max-w-5xl mx-auto">
@@ -285,7 +279,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 const hour = now.getHours();
 const minute = now.getMinutes();
 
-if (hour > 2 || (hour === 2 && minute >= 56)) {
+if (hour > 20 || (hour === 20 && minute >= 0)) {
   document.getElementById('results-screen').classList.remove('hidden');
   await fetchResults();
 } else {
