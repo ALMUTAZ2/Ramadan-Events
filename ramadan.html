@@ -168,12 +168,15 @@
 <!-- شاشة الشكر -->
 <div id="thank-you-screen" class="min-h-screen text-white p-6 hidden">
   <div class="max-w-2xl mx-auto">
+
     <div class="bg-white/10 backdrop-blur-lg border-2 border-green-400/20 rounded-2xl p-8 text-center">
 
+      <!-- القمر -->
       <div class="relative h-32 mb-6">
         <div class="floating-moon">
           <i data-lucide="moon" class="w-20 h-20 mx-auto text-yellow-400"></i>
         </div>
+
         <div class="absolute bottom-0 w-full">
           <i data-lucide="star" class="star w-4 h-4" style="left: calc(50% - 20px);"></i>
           <i data-lucide="star" class="star w-4 h-4" style="left: 50%;"></i>
@@ -181,38 +184,42 @@
         </div>
       </div>
 
+      <!-- العنوان -->
       <h3 class="text-2xl font-bold text-yellow-400 mb-6">
         شكراً لمشاركتك معنا ورمضان كريم
       </h3>
 
-      <div class="text-gray-300 leading-8 space-y-4 text-center">
+      <!-- النص -->
+      <div class="text-gray-300 leading-8 text-center space-y-4">
 
-        <p>
-          سعدنا بوصول عدد المشاركين إلى ما يقارب
-          <strong>1000 مشارك</strong>،
-          وهذا بفضل حماسكم وتفاعلكم الرائع 🤩
+        <p class="text-lg">
+          سعدنا بوصول عدد المشاركين إلى
+          <span id="participants-count" class="text-yellow-400 font-bold text-xl">...</span>
+          مشارك 🤩
         </p>
 
         <p>
           كما نتقدم بخالص الشكر والتقدير لرعاة المسابقة:
         </p>
 
-        <p class="font-semibold text-white text-lg">
+        <div class="p-4 rounded-xl border border-yellow-400/30 bg-white/5 text-white font-semibold">
           جبران حريصي<br>
           عبدالله الحازمي<br>
           محمد زولي<br>
           محمد معقيلي
-        </p>
+        </div>
 
         <p>
           على دعمهم الكريم لإنجاح هذه المسابقة.
         </p>
 
-        <p class="text-yellow-400 font-bold text-xl mt-6">
-          اعداد / المعتز ابوطالب 
+        <p class="text-yellow-400 font-bold text-xl mt-4">
+          اعداد / المعتز ابوطالب
         </p>
 
       </div>
+
+      <p class="text-yellow-400 text-2xl mt-4">🌟</p>
 
       <button id="show-results-button"
         class="mt-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-xl text-lg">
@@ -662,7 +669,7 @@ facts:[
     // إعدادات المسابقة
     // ==========================
     const QUIZ_MODE = "auto";
-    const QUIZ_START_HOUR = 3;
+    const QUIZ_START_HOUR = 19;
     const QUIZ_START_MINUTE = 0;
     const QUIZ_END_HOUR = 20;
     const QUIZ_END_MINUTE = 0;
