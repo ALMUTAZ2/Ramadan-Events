@@ -594,6 +594,7 @@ facts:[
       playerName: "",
       playerPhone: "",          // ✅ رقم الجوال
       deviceId: "",
+      fingerprint: "",
       currentQuestion: 0,
       score: 0,
       answers: [],
@@ -644,21 +645,58 @@ facts:[
     // ==========================
     // أدوات مساعدة
     // ==========================
-    function generateDeviceId() {
-      try {
-        let deviceId = localStorage.getItem('quizDeviceId');
-        if (!deviceId) {
-          deviceId = 'device_' + Math.random().toString(36).substring(2, 15) +
-                              Math.random().toString(36).substring(2, 15);
-          localStorage.setItem('quizDeviceId', deviceId);
-        }
-        return deviceId;
-      } catch (error) {
-        console.error('خطأ في إنشاء معرف الجهاز:', error);
-        return 'device_' + Date.now();
+    async function isIncognito() {
+  try {
+    const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+
+    if (!fs) {
+      const storage = navigator.storage;
+      if (storage && storage.estimate) {
+        const estimate = await storage.estimate();
+        return estimate.quota < 120000000;
       }
+      return false;
     }
 
+    return new Promise(resolve => {
+      fs(window.TEMPORARY, 100,
+        () => resolve(false),
+        () => resolve(true)
+      );
+    });
+
+  } catch {
+    return false;
+  }
+}
+    function generateDeviceId() {
+  try {
+    let deviceId = localStorage.getItem('quizDeviceId');
+    if (!deviceId) {
+      deviceId = 'device_' + Math.random().toString(36).substring(2, 15) +
+                          Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('quizDeviceId', deviceId);
+    }
+    return deviceId;
+  } catch (error) {
+    console.error('خطأ في إنشاء معرف الجهاز:', error);
+    return 'device_' + Date.now();
+  }
+}
+
+// 🔒 بصمة الجهاز (Fingerprint)
+function generateFingerprint(){
+  return (
+    navigator.userAgent +
+    navigator.platform +
+    screen.width +
+    screen.height +
+    navigator.language +
+    Intl.DateTimeFormat().resolvedOptions().timeZone +
+    navigator.hardwareConcurrency +
+    navigator.deviceMemory
+  );
+}
     function shuffleArray(array) {
       const newArray = [...array];
       for (let i = newArray.length - 1; i > 0; i--) {
@@ -804,21 +842,47 @@ function checkQuizTimeStatus() {
       }
     }
 
-    async function checkFirestoreParticipation(deviceId) {
-      try {
-        const today = getTodayFormatted();
-        const participationQuery = await db.collection('participants')
-          .where('deviceId', '==', deviceId)
-          .where('participationDate', '==', today)
-          .limit(1)
-          .get();
+    async function checkFirestoreParticipation(deviceId, phone, fingerprint) {
 
-        return !participationQuery.empty;
-      } catch (error) {
-        console.error('خطأ في التحقق من المشاركة في Firestore:', error);
-        return checkLocalParticipation();
-      }
+  try {
+
+    const today = getTodayFormatted();
+
+    // فحص رقم الجوال فقط إذا كان موجود
+    if (phone && phone !== "") {
+
+      const phoneCheck = await db.collection('participants')
+        .where('playerPhone', '==', phone)
+        .where('participationDate', '==', today)
+        .limit(1)
+        .get();
+
+      if (!phoneCheck.empty) return true;
     }
+
+    // فحص الجهاز
+    const deviceCheck = await db.collection('participants')
+      .where('deviceId', '==', deviceId)
+      .where('participationDate', '==', today)
+      .limit(1)
+      .get();
+
+    if (!deviceCheck.empty) return true;
+
+    // فحص البصمة
+    const fingerprintCheck = await db.collection('participants')
+      .where('fingerprint', '==', fingerprint)
+      .where('participationDate', '==', today)
+      .limit(1)
+      .get();
+
+    return !fingerprintCheck.empty;
+
+  } catch (error) {
+    console.error('خطأ التحقق من المشاركة:', error);
+    return false;
+  }
+}
 
     async function recordFirestoreParticipation(participationData) {
       try {
@@ -1023,8 +1087,9 @@ function checkQuizTimeStatus() {
         // حفظ النتيجة في scores
         const playerData = {
   playerName: gameState.playerName,
-  playerPhone: gameState.playerPhone || '', // ✅ مهم
+  playerPhone: gameState.playerPhone || '',
   deviceId: gameState.deviceId,
+  fingerprint: gameState.fingerprint,
   score: gameState.score,
   totalTime: gameState.totalTime,
   answers: gameState.answers,
@@ -1063,6 +1128,7 @@ function checkQuizTimeStatus() {
 
           document.getElementById('answers-review').innerHTML = answersHtml;
           lucide.createIcons();
+          localStorage.removeItem("quizStarted");
         };
 
       } catch (error) {
@@ -1072,6 +1138,17 @@ function checkQuizTimeStatus() {
     }
 
     async function initializeQuiz() {
+  localStorage.removeItem("quizStarted");
+
+  const incognito = await isIncognito();
+
+  if (incognito) {
+    alert("يرجى فتح المسابقة في المتصفح العادي وليس الخفي");
+    return;
+  }
+
+
+  
       try {
         if (!db) {
           alert("Firebase غير جاهز. تأكد من الإعدادات ثم أعد المحاولة.");
@@ -1079,6 +1156,7 @@ function checkQuizTimeStatus() {
         }
 
         gameState.deviceId = generateDeviceId();
+        gameState.fingerprint = generateFingerprint();
         updateDateTime();
 
         elements.loadingScreen.classList.remove('hidden');
@@ -1087,7 +1165,11 @@ function checkQuizTimeStatus() {
         const quizTimeStatus = checkQuizTimeStatus();
 
         if (quizTimeStatus.isAvailable) {
-          const hasParticipated = await checkFirestoreParticipation(gameState.deviceId);
+         const hasParticipated = await checkFirestoreParticipation(
+  gameState.deviceId,
+  "",
+  gameState.fingerprint
+);
           elements.loadingScreen.classList.add('hidden');
 
           if (hasParticipated) elements.alreadyParticipatedScreen.classList.remove('hidden');
@@ -1125,23 +1207,42 @@ function checkQuizTimeStatus() {
           return;
         }
 
-        const hasParticipated = await checkFirestoreParticipation(gameState.deviceId);
+        const hasParticipated = await checkFirestoreParticipation(
+  gameState.deviceId,
+  gameState.playerPhone,
+  gameState.fingerprint
+);
+        
         if (hasParticipated) {
           elements.loadingScreen.classList.add('hidden');
           elements.alreadyParticipatedScreen.classList.remove('hidden');
           return;
         }
+        if(localStorage.getItem("quizStarted") === "true"){
+  alert("لقد بدأت المسابقة بالفعل");
+  location.reload();
+  return;
+}
+
+localStorage.setItem("quizStarted","true");
 
         // تحديد اليوم الحالي
         const today = new Date();
         const ramadanStartDate = new Date(2026, 1, 23); // 23 فبراير 2026 (6 رمضان)
-        const ramadanEndDate = new Date(2026, 2, 9);   // 9 مارس 2026 (20 رمضان)
+        const ramadanEndDate = new Date(2026, 2, 10);   // 9 مارس 2026 (20 رمضان)
 
         let questionDay;
 
         if (today >= ramadanStartDate && today <= ramadanEndDate) {
-          const daysDifference = Math.floor((today - ramadanStartDate) / (1000 * 60 * 60 * 24));
-          questionDay = daysDifference + 6;
+          // تصفير الوقت بدون تغيير التاريخ الأصلي
+const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+const startDate = new Date(ramadanStartDate.getFullYear(), ramadanStartDate.getMonth(), ramadanStartDate.getDate());
+
+const daysDifference = Math.floor(
+  (todayDate - startDate) / (1000 * 60 * 60 * 24)
+);
+
+questionDay = daysDifference + 6;
         } else {
           console.error("اليوم خارج نطاق المسابقة.");
           elements.loadingScreen.classList.add('hidden');
@@ -1162,11 +1263,12 @@ function checkQuizTimeStatus() {
         recordLocalParticipation(gameState.playerName, gameState.playerPhone);
 
         const participationData = {
-          playerName: gameState.playerName,
-          playerPhone: gameState.playerPhone || '',
-          deviceId: gameState.deviceId,
-          participationDate: getTodayFormatted()
-        };
+  playerName: gameState.playerName,
+  playerPhone: gameState.playerPhone,
+  deviceId: gameState.deviceId,
+  fingerprint: gameState.fingerprint,
+  participationDate: getTodayFormatted()
+};
 
         const ok = await recordFirestoreParticipation(participationData);
         if (!ok) {
@@ -1219,7 +1321,8 @@ startCountdown();
 } catch (error) {
   console.error('Error starting quiz:', error);
   elements.loadingScreen.classList.add('hidden');
-  alert('حدث خطأ أثناء بدء المسابقة');
+ localStorage.removeItem("quizStarted");
+alert('حدث خطأ أثناء بدء المسابقة');
 }
 }       
 
