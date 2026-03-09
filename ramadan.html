@@ -921,13 +921,6 @@ if (!fingerprintCheck.empty) return true;
 
 
 // فحص IP
-const ipCheck = await db.collection('participants')
-  .where('ip', '==', ip)
-  .where('participationDate', '==', today)
-  .limit(1)
-  .get();
-
-if (!ipCheck.empty) return true;
 
 return false;
 
