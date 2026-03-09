@@ -645,6 +645,15 @@ facts:[
     // ==========================
     // أدوات مساعدة
     // ==========================
+    async function getUserIP(){
+  try{
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  }catch{
+    return "unknown";
+  }
+}
     async function isIncognito() {
   try {
     const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
@@ -842,8 +851,7 @@ function checkQuizTimeStatus() {
       }
     }
 
-    async function checkFirestoreParticipation(deviceId, phone, fingerprint) {
-
+   async function checkFirestoreParticipation(deviceId, phone, fingerprint, ip) {
   try {
 
     const today = getTodayFormatted();
@@ -870,13 +878,26 @@ function checkQuizTimeStatus() {
     if (!deviceCheck.empty) return true;
 
     // فحص البصمة
-    const fingerprintCheck = await db.collection('participants')
-      .where('fingerprint', '==', fingerprint)
-      .where('participationDate', '==', today)
-      .limit(1)
-      .get();
+    // فحص البصمة
+const fingerprintCheck = await db.collection('participants')
+  .where('fingerprint', '==', fingerprint)
+  .where('participationDate', '==', today)
+  .limit(1)
+  .get();
 
-    return !fingerprintCheck.empty;
+if (!fingerprintCheck.empty) return true;
+
+
+// فحص IP
+const ipCheck = await db.collection('participants')
+  .where('ip', '==', ip)
+  .where('participationDate', '==', today)
+  .limit(1)
+  .get();
+
+if (!ipCheck.empty) return true;
+
+return false;
 
   } catch (error) {
     console.error('خطأ التحقق من المشاركة:', error);
@@ -904,6 +925,7 @@ function checkQuizTimeStatus() {
           deviceId: gameState.deviceId,
           playerName: gameState.playerName,
           playerPhone: gameState.playerPhone || '',
+          ip: gameState.ip,
           participationDate: getTodayFormatted(),
           startedAt: firebase.firestore.FieldValue.serverTimestamp(),
           status: "started"
@@ -1090,6 +1112,7 @@ function checkQuizTimeStatus() {
   playerPhone: gameState.playerPhone || '',
   deviceId: gameState.deviceId,
   fingerprint: gameState.fingerprint,
+  ip: gameState.ip,
   score: gameState.score,
   totalTime: gameState.totalTime,
   answers: gameState.answers,
@@ -1165,10 +1188,13 @@ function checkQuizTimeStatus() {
         const quizTimeStatus = checkQuizTimeStatus();
 
         if (quizTimeStatus.isAvailable) {
-         const hasParticipated = await checkFirestoreParticipation(
+         gameState.ip = await getUserIP();
+
+const hasParticipated = await checkFirestoreParticipation(
   gameState.deviceId,
   "",
-  gameState.fingerprint
+  gameState.fingerprint,
+  gameState.ip
 );
           elements.loadingScreen.classList.add('hidden');
 
@@ -1197,6 +1223,7 @@ function checkQuizTimeStatus() {
 
         gameState.playerName = elements.playerNameInput.value.trim();
         gameState.playerPhone = elements.playerPhoneInput.value.trim();
+        gameState.ip = await getUserIP();
 
         // ✅ تحقق رقم الجوال: يبدأ بـ 05 وطوله 10
         const phoneRegex = /^05\d{8}$/;
@@ -1207,10 +1234,11 @@ function checkQuizTimeStatus() {
           return;
         }
 
-        const hasParticipated = await checkFirestoreParticipation(
+       const hasParticipated = await checkFirestoreParticipation(
   gameState.deviceId,
   gameState.playerPhone,
-  gameState.fingerprint
+  gameState.fingerprint,
+  gameState.ip
 );
         
         if (hasParticipated) {
@@ -1267,6 +1295,7 @@ questionDay = daysDifference + 6;
   playerPhone: gameState.playerPhone,
   deviceId: gameState.deviceId,
   fingerprint: gameState.fingerprint,
+  ip: gameState.ip,
   participationDate: getTodayFormatted()
 };
 
